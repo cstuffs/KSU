@@ -827,19 +827,13 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
-@app.route('/init_db')
-def init_db():
-    try:
-        db.create_all()
-        return "✅ Database initialized!"
-    except Exception as e:
-        return f"❌ Error: {e}", 500
-    
-@app.route('/seed')
-def seed_database():
-    import seed_data
-    return "✅ Database seeded"
+@app.before_first_request
+def recreate_db():
+    from models import db
+    db.drop_all()
+    db.create_all()
+    print("✅ Dropped and recreated all tables.")
 
 # === Run the App ===
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True)
