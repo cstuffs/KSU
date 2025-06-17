@@ -864,6 +864,12 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
+@app.route('/init_db')
+def init_db():
+    from models import db  # if you're using a separate models.py
+    db.create_all()
+    return "✅ Database initialized!"
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
