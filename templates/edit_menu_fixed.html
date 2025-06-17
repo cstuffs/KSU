@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Menu</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9fb;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header-box {
+        background-color: #512888;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 1.8em;
+        font-weight: bold;
+    }
+
+    .content {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    summary {
+        background-color: #f0f0f0;
+        padding: 12px 16px;
+        font-size: 1.2em;
+        font-weight: bold;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        background-color: white;
+    }
+
+    th, td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    input[type="text"], input[type="number"] {
+        width: 100%;
+        padding: 6px 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #dddddd;
+        color: #333;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        margin: 5px 5px 15px 0;
+    }
+
+    button:hover {
+        background-color: #cccccc;
+    }
+
+    .action-buttons {
+        margin-top: 30px;
+    }
+
+    .primary-btn, .back-button {
+        background-color: #512888;
+        color: white;
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .primary-btn:hover, .back-button:hover {
+        background-color: #3e1e6d;
+    }
+
+        body { font-family: Arial; background: #f9f9fb; padding: 20px; }
+        summary { font-weight: bold; background: #eee; padding: 10px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ccc; padding: 8px; }
+        input { width: 100%; }
+        button { margin: 5px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js">
+// Initialize drag-and-drop for each group
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".sortable-group").forEach(group => {
+        Sortable.create(group, {
+            animation: 150,
+            handle: ".draggable-item",
+            draggable: ".draggable-item",
+            ghostClass: "sortable-ghost"
+        });
+    });
+
+    document.querySelectorAll(".option-body").forEach(updateOptionDeleteButtons);
+});
+</script>
+
+    </head>
+
+<body>
+<div class="header-box">Edit Menu Items</div>
+<div class="content">
+<h1>Edit Menu</h1>
+<form method="POST">
+    {% for group_name, items in grouped_menu.items() %}
+    <details>
+        <summary>{{ group_name }}</summary>
+        <div id="group_{{ loop.index }}" class="sortable-group">
+            {% for item_name, options in items.items() %}
+            <div class="draggable-item">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item Name</th><th>Option</th><th>Price</th><th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="option-body">
+                        {% for opt in options %}
+                        <tr>
+                            {% if loop.first %}
+                            <td rowspan="{{ options|length }}">
+                                <input type="hidden" name="group_names[{{ group_name }}][item_names][]" value="{{ item_name }}" class="group-hidden-input">
+                                <input type="text" name="item_names[]" class="item-name-input" style="min-width: 400px;" value="{{ item_name }}" required oninput="syncFieldNames(this)">
+                            </td>
+                            {% endif %}
+                            <td><input type="text" name="options[{{ item_name }}][]" value="{{ opt.name }}" required></td>
+                            <td><input type="number" name="prices[{{ item_name }}][]" value="{{ opt.price }}" step="0.01" required></td>
+                            <td>
+                                <button type="button" class="remove-option" onclick="removeRow(this)">✖</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div>
+                    <button type="button" onclick="addOption(this, '{{ item_name }}')">➕ Add Option</button>
+                    <button type="button" onclick="deleteItemBlock(this)">❌ Delete Item</button>
+                </div>
+            </div>
+            {% endfor %}
+            <button type="button" onclick="addItemBlock('group_{{ loop.index }}', '{{ group_name }}')">➕ Add Item</button>
+        </div>
+    </details>
+    {% endfor %}
+
+    <div class="action-buttons">
+        <button type="submit" class="primary-btn">Save Changes</button>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-button">← Back to Dashboard</a>
+    </div>
+</form>
+
+<script>
+function syncFieldNames(input) {
+    const newName = input.value.trim();
+    if (!newName) return;
+    const container = input.closest(".draggable-item");
+
+    container.querySelectorAll('input[name^="options["]').forEach(opt => {
+        opt.name = `options[${newName}][]`;
+    });
+    container.querySelectorAll('input[name^="prices["]').forEach(price => {
+        price.name = `prices[${newName}][]`;
+    });
+
+    const hidden = container.querySelector('.group-hidden-input');
+    if (hidden) hidden.value = newName;
+}
+
+function addItemBlock(containerId, groupName) {
+    const container = document.getElementById(containerId);
+    const newName = "New Item";
+
+    const tableHtml = `
+        <div class="draggable-item">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th><th>Option</th><th>Price</th><th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="option-body">
+                    <tr>
+                        <td>
+                            <input type="hidden" name="group_names[${groupName}][item_names][]" value="${newName}" class="group-hidden-input">
+                            <input type="text" name="item_names[]" class="item-name-input" style="min-width: 400px;" value="${newName}" required oninput="syncFieldNames(this)">
+                        </td>
+                        <td><input type="text" name="options[${newName}][]" placeholder="Option" required></td>
+                        <td><input type="number" name="prices[${newName}][]" placeholder="Price" step="0.01" required></td>
+                        <td>
+                            <button type="button" class="remove-option" onclick="removeRow(this)">✖</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>
+                <button type="button" onclick="addOption(this, '${newName}')">➕ Add Option</button>
+                <button type="button" onclick="deleteItemBlock(this)">❌ Delete Item</button>
+            </div>
+        </div>
+    `;
+
+    container.insertAdjacentHTML('beforeend', tableHtml);
+}
+
+function addOption(button, itemName) {
+    const tbody = button.closest('.draggable-item').querySelector('.option-body');
+    const newRow = document.createElement('tr');
+
+    newRow.innerHTML = `
+        <td></td>
+        <td><input type="text" name="options[${itemName}][]" placeholder="Option" required></td>
+        <td><input type="number" name="prices[${itemName}][]" placeholder="Price" step="0.01" required></td>
+        <td><button type="button" class="remove-option" onclick="removeRow(this)">✖</button></td>
+    `;
+
+    tbody.appendChild(newRow);
+    updateOptionDeleteButtons(tbody);
+}
+
+function removeRow(button) {
+    const tbody = button.closest("tbody");
+    button.closest("tr").remove();
+    updateOptionDeleteButtons(tbody);
+}
+
+function updateOptionDeleteButtons(tbody) {
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    rows.forEach((row, index) => {
+        const btnCell = row.querySelector("td:last-child");
+        const removeBtn = btnCell.querySelector(".remove-option");
+
+        if (removeBtn) {
+            if (index === 0) {
+                removeBtn.style.display = "none";
+            } else {
+                removeBtn.style.display = "inline-block";
+            }
+        }
+    });
+}
+
+function deleteItemBlock(button) {
+    const block = button.closest('.draggable-item');
+    block.remove();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".option-body").forEach(updateOptionDeleteButtons);
+});
+
+// Initialize drag-and-drop for each group
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".sortable-group").forEach(group => {
+        Sortable.create(group, {
+            animation: 150,
+            handle: ".draggable-item",
+            draggable: ".draggable-item",
+            ghostClass: "sortable-ghost"
+        });
+    });
+
+    document.querySelectorAll(".option-body").forEach(updateOptionDeleteButtons);
+});
+</script>
+
+</div></body>
+</html>

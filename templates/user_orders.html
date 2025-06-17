@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><title>Orders for {{ user_name }}</title></head>
+<body>
+    <h1>Orders for {{ user_name }}</h1>
+
+    <h2>This Week's Orders</h2>
+    <table border="1">
+        <tr><th>Date</th><th>Item</th><th>Quantity</th></tr>
+        {% for entry in weekly_orders %}
+        <tr>
+            <td>{{ entry.date }}</td>
+            <td>{{ entry.item }}</td>
+            <td>{{ entry.quantity }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Total Orders This Year</h2>
+    <table border="1">
+        <tr><th>Item</th><th>Total Quantity</th></tr>
+        {% for entry in total_orders %}
+        <tr>
+            <td>{{ entry.item }}</td>
+            <td>{{ entry.quantity }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p><a href="{{ url_for('admin_dashboard') }}">← Back to Dashboard</a></p>
+</body>
+</html>

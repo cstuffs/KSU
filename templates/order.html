@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Form</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-box {
+            background-color: #512888;
+            color: white;
+            padding: 10px 20px;
+            position: relative;
+            text-align: center;
+            text-shadow: 1px 1px 2px black, -1px -1px 2px black,
+                         1px -1px 2px black, -1px 1px 2px black;
+        }
+
+        .header-title {
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: white;
+            color: #512888;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .group {
+            margin-bottom: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .group summary {
+            background-color: #f0f0f0;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 0 #ffffff, -1px -1px 0 #ffffff,
+                         1px -1px 0 #ffffff, -1px 1px 0 #ffffff;
+        }
+
+        .item-header {
+            font-weight: bold;
+            margin: 15px 0 5px 0;
+            font-size: 1.05em;
+            text-shadow: 1px 1px 0 #ffffff, -1px -1px 0 #ffffff,
+                         1px -1px 0 #ffffff, -1px 1px 0 #ffffff;
+        }
+
+        table.item-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        table.item-table th,
+        table.item-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        table.item-table th {
+            background-color: #f9f9f9;
+        }
+
+        table.item-table th:nth-child(1),
+        table.item-table td:nth-child(1) {
+            width: 40%;
+        }
+
+        table.item-table th:nth-child(2),
+        table.item-table td:nth-child(2) {
+            width: 20%;
+            text-align: right;
+        }
+
+        table.item-table th:nth-child(3),
+        table.item-table td:nth-child(3) {
+            width: 20%;
+            text-align: center;
+        }
+
+        .quantity-input {
+            width: 60px;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .review-button,
+        .dashboard-button {
+            background-color: #512888;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            margin-right: 10px;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .review-button:hover,
+        .dashboard-button:hover {
+            background-color: #3e1e6d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-box">
+    <span class="header-title">{{ session.get('team', 'Unknown Team') }} – Order Form</span>
+    {% if session.get("team") != "KSU Football" %}
+        <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+    {% endif %}
+</div>
+
+<div class="content">
+    {% set form_data = form_data or {} %}
+
+    <p><strong>Order for week:</strong> {{ week_range }}</p>
+    <p><strong>Member:</strong> {{ session.get('member_name') }}</p>
+
+    {% if message %}
+        <p><strong>{{ message }}</strong></p>
+    {% endif %}
+
+    <p>
+        <strong>Budget:</strong> {{ "${:,.2f}".format(user_budget) }} |
+        <strong>Remaining:</strong> {{ "${:,.2f}".format(remaining_budget) }}
+    </p>
+
+    <form method="POST" action="{{ url_for('add_to_order') }}">
+        {% for group_name, items in grouped_menu.items() %}
+        <details class="group">
+            <summary>{{ group_name }}</summary>
+
+            {% for item_name, options in items.items() %}
+                <div class="item-header">{{ item_name }}</div>
+                <table class="item-table">
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for option in options %}
+                            {% set item_id = (item_name + '_' + option.name).replace(' ', '_') %}
+                            {% set qty_key = 'qty_' ~ item_id %}
+                            <tr>
+                                <td>{{ option.name }}</td>
+                                <td>${{ '%.2f'|format(option.price) }}</td>
+                                <td>
+                                    <input type="number"
+                                           name="{{ qty_key }}"
+                                           class="quantity-input"
+                                           min="0"
+                                           value="{{ form_data.get(qty_key, 0) }}">
+                                    <input type="hidden"
+                                           name="meta_{{ item_id }}"
+                                           value="{{ item_name }}|||{{ option.name }}|||{{ option.price }}">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+        </details>
+        {% endfor %}
+
+        <input type="hidden" name="action" id="actionField" value="review">
+
+        <div>
+            <button type="button" class="review-button" onclick="submitWithAction('review')">
+                Review Order
+            </button>
+
+            {% if session.get("team") == "KSU Football" %}
+                <a href="{{ url_for('admin_dashboard') }}" class="dashboard-button">← Back to Dashboard</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<script>
+    function submitWithAction(val) {
+        document.getElementById('actionField').value = val;
+        document.forms[0].submit();
+    }
+</script>
+
+</body>
+</html>

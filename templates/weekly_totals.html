@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weekly Totals Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f9f9fb;
+        }
+
+        .header-box {
+            background-color: #512888;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black, -1px -1px 2px black,
+                         1px -1px 2px black, -1px 1px 2px black;
+        }
+
+        .scroll-wrapper {
+            max-height: 80vh;
+            overflow: auto;
+            border: 1px solid #ccc;
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: max-content;
+            min-width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: #512888;
+            color: white;
+            z-index: 2;
+            text-align: center;
+        }
+
+        td:first-child, th:first-child {
+            position: sticky;
+            left: 0;
+            background-color: #ffffff;
+            z-index: 1;
+            text-align: center;
+        }
+
+        td:nth-child(2), th:nth-child(2) {
+            position: sticky;
+            left: 150px;
+            background-color: #ffffff;
+            z-index: 1;
+            text-align: center;
+        }
+
+        thead th:first-child,
+        thead th:nth-child(2) {
+            z-index: 3;
+            background-color: #512888;
+            color: white;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            background-color: #512888;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background-color: #6a3ab2;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-box">Weekly Totals Summary</div>
+
+    <div class="scroll-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Week Range</th>
+                    <th>Week #</th>
+                    {% for team in users %}
+                        {% for year in years %}
+                            <th>{{ team }} {{ year }}</th>
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in range(1, 53) %}
+                    {% set start_of_week = datetime(years|min, 1, 1) + timedelta(weeks=week-1) %}
+                    {% set end_of_week = start_of_week + timedelta(days=6) %}
+                    <tr>
+                        <td>{{ start_of_week.strftime("%-m/%-d/%y") }} - {{ end_of_week.strftime("%-m/%-d/%y") }}</td>
+                        <td>{{ week }}</td>
+                        {% for team in users %}
+                            {% for year in years %}
+                                <td>${{ '%.2f'|format(yearly_totals_by_week.get(year, {}).get(week, {}).get(team, 0.0)) }}</td>
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="button-container">
+        <a href="{{ url_for('admin_dashboard') }}" class="back-button">← Back to Dashboard</a>
+    </div>
+</body>
+</html>

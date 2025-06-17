@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Team Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-box {
+            background-color: #512888;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black, -1px -1px 2px black;
+        }
+
+        .content {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-block {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .team-block h3 {
+            color: #512888;
+            margin-bottom: 10px;
+        }
+
+        input.team-name-input {
+            width: 100%;
+            padding: 8px;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            border: 1px solid #aaa;
+            border-radius: 6px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 8px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .button-row {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .button {
+            background-color: #512888;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: #34175e;
+        }
+
+        .remove-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #cc0000;
+            padding: 5px 10px;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .remove-button:hover {
+            background-color: #a30000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-box">Edit Team Users</div>
+
+<div class="content">
+    <form method="post" id="userForm">
+        <div id="teamContainer">
+            {% for team, members in users.items() %}
+            <div class="team-block">
+                <div class="remove-button" onclick="removeTeamBlock(this)">✕</div>
+                <label>Team Name:</label>
+                <input type="text" name="team_names[]" class="team-name-input" value="{{ team }}" required>
+
+                <label>Members (one per line):</label>
+                <textarea name="members[]">{{ members | join('\n') }}</textarea>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="button-row">
+            <button type="button" class="button" onclick="addTeamBlock()">+ Add Team</button>
+            <button type="submit" class="button">Save Changes</button>
+            <a href="{{ url_for('admin_dashboard') }}" class="button">← Back to Dashboard</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function removeTeamBlock(btn) {
+    btn.closest('.team-block').remove();
+}
+
+function addTeamBlock() {
+    const container = document.getElementById('teamContainer');
+    const newBlock = document.createElement('div');
+    newBlock.className = 'team-block';
+    newBlock.innerHTML = `
+        <div class="remove-button" onclick="removeTeamBlock(this)">✕</div>
+        <label>Team Name:</label>
+        <input type="text" name="team_names[]" class="team-name-input" required>
+
+        <label>Members (one per line):</label>
+        <textarea name="members[]"></textarea>
+    `;
+    container.appendChild(newBlock);
+}
+</script>
+
+</body>
+</html>

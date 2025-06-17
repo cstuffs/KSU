@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Orders Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f9f9fb;
+        }
+
+        .header-box {
+            background-color: #512888;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black, -1px -1px 2px black,
+                         1px -1px 2px black, -1px 1px 2px black;
+        }
+
+        .scroll-wrapper {
+            max-height: 80vh;
+            overflow: auto;
+            border: 1px solid #ccc;
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: max-content;
+            min-width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: #512888;
+            color: white;
+            z-index: 2;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            background-color: #512888;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background-color: #6a3ab2;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-box">All Orders Overview</div>
+
+    <div class="scroll-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Team</th>
+                    <th>Member</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in orders %}
+                    <tr>
+                        <td>{{ row.date }}</td>
+                        <td>{{ row.time }}</td>
+                        <td>{{ row.team }}</td>
+                        <td>{{ row.member }}</td>
+                        <td>{{ row.item }}</td>
+                        <td>{{ row.quantity }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="button-container">
+        <a href="{{ url_for('admin_dashboard') }}" class="back-button">← Back to Dashboard</a>
+    </div>
+</body>
+</html>

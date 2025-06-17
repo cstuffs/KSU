@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Produce & Hyvee Weekly Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-box {
+            background-color: #512888;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black, -1px -1px 2px black,
+                         1px -1px 2px black, -1px 1px 2px black;
+        }
+
+        .content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: #512888;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #3e1e6d;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .download-button {
+            background-color: #28a745;
+        }
+
+        .download-button:hover {
+            background-color: #218838;
+        }
+
+        h2 {
+            margin-top: 40px;
+            color: #512888;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #eee;
+            color: #333;
+        }
+
+        .no-orders {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+
+        .filter-container {
+            margin-bottom: 20px;
+        }
+
+        .filter-container label {
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        #filter-date {
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-box">
+    Produce & Hyvee Combined Weekly Orders
+</div>
+
+<div class="content">
+
+    <div class="button-group">
+        <a href="{{ url_for('admin_dashboard') }}" class="button">← Back to Dashboard</a>
+        <a href="{{ url_for('export_produce_hyvee_excel') }}" class="button download-button">Download Excel</a>
+    </div>
+
+    <p><strong>Week:</strong> {{ week_range }}</p>
+
+    {% if orders %}
+        <table id="orders-table">
+            <thead>
+                <tr>
+                    <th onclick="sortByDate()">Date &#x25B2;&#x25BC;</th>
+                    <th>Team</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody id="orders-body">
+                {% for date, team, item, qty in orders %}
+                    <tr>
+                        <td>{{ date }}</td>
+                        <td>{{ team }}</td>
+                        <td>{{ item }}</td>
+                        <td>{{ qty }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-orders">No qualifying Produce or Hyvee orders were placed this week.</p>
+    {% endif %}
+
+</div>
+
+<script>
+let originalRows = [];
+let dateSortDirection = 'none';
+
+function sortByDate() {
+    const tableBody = document.getElementById("orders-body");
+    const rows = Array.from(tableBody.querySelectorAll("tr"));
+
+    if (originalRows.length === 0) {
+        originalRows = rows.map(row => row.cloneNode(true));
+    }
+
+    if (dateSortDirection === 'asc') {
+        // Toggle to descending
+        rows.sort((a, b) => new Date(b.cells[0].innerText) - new Date(a.cells[0].innerText));
+        dateSortDirection = 'desc';
+    } else if (dateSortDirection === 'desc') {
+        // Toggle to original order
+        tableBody.innerHTML = '';
+        originalRows.forEach(row => tableBody.appendChild(row.cloneNode(true)));
+        dateSortDirection = 'none';
+        return;
+    } else {
+        // Default ascending sort
+        rows.sort((a, b) => new Date(a.cells[0].innerText) - new Date(b.cells[0].innerText));
+        dateSortDirection = 'asc';
+    }
+
+    // Update table
+    tableBody.innerHTML = '';
+    rows.forEach(row => tableBody.appendChild(row));
+}
+</script>
+
+</body>
+</html>

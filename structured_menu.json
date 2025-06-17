@@ -1,0 +1,800 @@
+{
+  "Protein Shakes/Powder": {
+    "Muscle Milk Genuine RTD 1 case - 12 shakes - 14 oz": [
+      {
+        "name": "Chocolate",
+        "price": 21.0
+      },
+      {
+        "name": "Vanilla",
+        "price": 21.0
+      },
+      {
+        "name": "Strawberry",
+        "price": 20.0
+      }
+    ],
+    "Muscle Milk Pro Series RTD 1 case - 12 shakes - 14 oz": [
+      {
+        "name": "Chocolate",
+        "price": 27.0
+      },
+      {
+        "name": "Vanilla",
+        "price": 27.0
+      },
+      {
+        "name": "Strawberry",
+        "price": 27.0
+      }
+    ],
+    "Evolve Protein Shake RTD 1 case - 12 shakes- 11.6 oz": [
+      {
+        "name": "Chocolate",
+        "price": 19.0
+      },
+      {
+        "name": "Vanilla",
+        "price": 19.0
+      }
+    ],
+    "COREPOWER RTD (26G) 1 case - 12 shakes - 14 oz": [
+      {
+        "name": "Chocolate",
+        "price": 22.0
+      },
+      {
+        "name": "Vanilla",
+        "price": 22.0
+      },
+      {
+        "name": "Strawberry Banana",
+        "price": 22.0
+      }
+    ],
+    "COREPOWER RTD (42G) 1 case - 12 shakes - 14 oz": [
+      {
+        "name": "Chocolate",
+        "price": 29.0
+      },
+      {
+        "name": "Vanilla",
+        "price": 29.0
+      },
+      {
+        "name": "Strawberry",
+        "price": 29.0
+      }
+    ],
+    "Muscle Milk 100% WHEY": [
+      {
+        "name": "1 TUB - 5 LB",
+        "price": 80.0
+      }
+    ],
+    "(G) Protein + Carbs Recovery Powder": [
+      {
+        "name": "1 TUB - 32 oz",
+        "price": 42.0
+      }
+    ],
+    "Muscle Milk Genuine Protein Powder": [
+      {
+        "name": "1 TUB - 4.94 LB",
+        "price": 42.0
+      }
+    ],
+    "Klean Athlete Whey Protein Isolate": [
+      {
+        "name": "1 bag - 20.5 oz",
+        "price": 26.4
+      }
+    ]
+  },
+  "Energy Bars": {
+    "Gatorade Whey Protein Bar": [
+      {
+        "name": "1 box - 12 bars",
+        "price": 18.0
+      }
+    ],
+    "Gatorade Chews": [
+      {
+        "name": "1 box - 16 bags",
+        "price": 19.0
+      }
+    ],
+    "Honey Stinger Energy Chews": [
+      {
+        "name": "1 box - 12 chews",
+        "price": 18.0
+      }
+    ],
+    "Honey Stinger Waffle": [
+      {
+        "name": "1 box - 16 waffles",
+        "price": 11.76
+      }
+    ]
+  },
+  "Hydration": {
+    "Gatorade BIB": [
+      {
+        "name": "Grape",
+        "price": 58.0
+      },
+      {
+        "name": "Lemon Lime",
+        "price": 58.0
+      },
+      {
+        "name": "Orange",
+        "price": 58.0
+      },
+      {
+        "name": "Fruit Punch",
+        "price": 58.0
+      }
+    ],
+    "Cherry Juice (Light)": [
+      {
+        "name": "1 case - 24 bottles - 8 oz",
+        "price": 39.0
+      }
+    ],
+    "Cherry Juice (Rebuild)": [
+      {
+        "name": "1 case - 24 bottles - 8 oz",
+        "price": 48.0
+      }
+    ],
+    "Propel Packets": [
+      {
+        "name": "1 box - 10 packets",
+        "price": 2.5
+      }
+    ],
+    "Propel Bottles": [
+      {
+        "name": "1 case - 24 bottles - 16.9 oz",
+        "price": 19.0
+      }
+    ],
+    "RTD Gatorade": [
+      {
+        "name": "1 case - 24 wide mouth bottles - 20 oz",
+        "price": 19.0
+      }
+    ],
+    "Drip Drop": [
+      {
+        "name": "1 case - 100 packets",
+        "price": 175.0
+      }
+    ],
+    "The Right Stuff": [
+      {
+        "name": "1 bag - 25 packets",
+        "price": 258.0
+      }
+    ],
+    "ORS - Fluid": [
+      {
+        "name": "1 case - 100",
+        "price": 100.0
+      }
+    ]
+  },
+  "Produce": {
+    "Red Apples": [
+      {
+        "name": "1 bag - 10 apples",
+        "price": 5.6
+      }
+    ],
+    "Bananas": [
+      {
+        "name": "3 Bundles",
+        "price": 4.0
+      }
+    ],
+    "Peaches": [
+      {
+        "name": "1 bag - 10 peaches",
+        "price": 7.46
+      }
+    ],
+    "Cuties": [
+      {
+        "name": "1 bag",
+        "price": 5.99
+      }
+    ],
+    "Pears, Bartlett": [
+      {
+        "name": "1 bag - 10 pears",
+        "price": 3.75
+      }
+    ],
+    "Fresh Cut Pineapple": [
+      {
+        "name": "1 tray - 20 bags",
+        "price": 39.99
+      }
+    ],
+    "Fresh Green Grapes (Stems Off)": [
+      {
+        "name": "1 tray - 20 bags",
+        "price": 64.99
+      }
+    ],
+    "Fresh Strawberries (Tops Off)": [
+      {
+        "name": "1 tray - 20 bags",
+        "price": 74.99
+      }
+    ],
+    "Watermelon": [
+      {
+        "name": "1 whole",
+        "price": 7.99
+      }
+    ]
+  },
+  "Hyvee": {
+    "Sara Lee Classic White Bread": [
+      {
+        "name": "1 loaf",
+        "price": 3.19
+      }
+    ],
+    "HyVee Wheat Bread": [
+      {
+        "name": "1 loaf",
+        "price": 3.79
+      }
+    ],
+    "Thomas Bagel (Assorted)": [
+      {
+        "name": "1 sleeve",
+        "price": 4.99
+      }
+    ],
+    "Hy-Vee Squeeze Grape Jelly": [
+      {
+        "name": "1 bottle",
+        "price": 2.98
+      }
+    ],
+    "Hy-Vee Squeeze Strawberry Jelly": [
+      {
+        "name": "1 bottle",
+        "price": 2.99
+      }
+    ],
+    "Chobani Tub 1 tub - 32 oz": [
+      {
+        "name": "Vanilla",
+        "price": 6.49
+      },
+      {
+        "name": "Strawberry",
+        "price": 6.49
+      },
+      {
+        "name": "Whole Fat Vanilla",
+        "price": 6.49
+      }
+    ],
+    "Chobani 1 pack - 4 cups": [
+      {
+        "name": "Strawberry",
+        "price": 5.29
+      },
+      {
+        "name": "Key-Lime",
+        "price": 5.29
+      },
+      {
+        "name": "Peach",
+        "price": 5.29
+      },
+      {
+        "name": "Cherry",
+        "price": 5.29
+      },
+      {
+        "name": "Blueberry",
+        "price": 5.29
+      },
+      {
+        "name": "Strawberry Banana",
+        "price": 5.29
+      },
+      {
+        "name": "Vanilla",
+        "price": 5.29
+      }
+    ],
+    "Oikos Triple Zero Yogurt 1 pack - 4 cups": [
+      {
+        "name": "Strawberry",
+        "price": 5.29
+      },
+      {
+        "name": "Vanilla",
+        "price": 5.29
+      },
+      {
+        "name": "Mixed Berry",
+        "price": 5.29
+      }
+    ],
+    "Hy-Vee Mozzarella String Cheese": [
+      {
+        "name": "1 package",
+        "price": 8.99
+      }
+    ],
+    "Deli Sandwhich - Ham": [
+      {
+        "name": "10 Sandwhiches",
+        "price": 25.0
+      }
+    ],
+    "Deli Sandwhich - Turkey": [
+      {
+        "name": "10 Sandwhiches",
+        "price": 25.0
+      }
+    ],
+    "Chocolate Milk, 1%": [
+      {
+        "name": "0.5 gallon",
+        "price": 3.68
+      }
+    ],
+    "Lactaid, Whole Milk": [
+      {
+        "name": "1 gallon",
+        "price": 7.49
+      }
+    ],
+    "Lactaid, 1% Milk": [
+      {
+        "name": "0.5 gallon",
+        "price": 4.99
+      }
+    ],
+    "White milk, 2%": [
+      {
+        "name": "0.5 gallon",
+        "price": 2.19
+      }
+    ],
+    "HyVee 100% fortified Orange Juice": [
+      {
+        "name": "1 gallon",
+        "price": 7.19
+      }
+    ],
+    "Old Orchard 100% Premium Tart Cherry Juice": [
+      {
+        "name": "1 Jug - 64oz",
+        "price": 7.39
+      }
+    ],
+    "Baby Carrots": [
+      {
+        "name": "5 baggies - 16oz bag",
+        "price": 1.69
+      }
+    ],
+    "Fresh Spinach": [
+      {
+        "name": "1bag - 8 oz",
+        "price": 3.49
+      }
+    ],
+    "Skippy PB Packets": [
+      {
+        "name": "1 box - 8 ct",
+        "price": 2.99
+      }
+    ],
+    "Honey": [
+      {
+        "name": "1 bottle - 12oz.",
+        "price": 5.49
+      }
+    ],
+    "Jif PB": [
+      {
+        "name": "1 tub - 40oz.",
+        "price": 11.99
+      }
+    ],
+    "HyVee Old Fashioned Oats": [
+      {
+        "name": "1 Package - 42oz.",
+        "price": 8.99
+      }
+    ],
+    "Chia Seeds": [
+      {
+        "name": "1 Bag - 12oz.",
+        "price": 5.79
+      }
+    ],
+    "Mini Chocolate Chips": [
+      {
+        "name": "1 Bag - 12oz.",
+        "price": 2.79
+      }
+    ],
+    "Jello": [
+      {
+        "name": "1 box",
+        "price": 1.48
+      }
+    ],
+    "Off-Brand Nutella": [
+      {
+        "name": "1 tub - 13 oz.",
+        "price": 4.19
+      }
+    ],
+    "Black Forest Fruit Snacks": [
+      {
+        "name": "1box - 40ct",
+        "price": 9.98
+      }
+    ],
+    "Made Good Bars": [
+      {
+        "name": "1 box - 6 ct",
+        "price": 4.99
+      }
+    ],
+    "Frozen Mango Chunks": [
+      {
+        "name": "1 bag - 48 oz.",
+        "price": 11.99
+      }
+    ],
+    "Frozen Raspberries": [
+      {
+        "name": "1 bag - 12 oz.",
+        "price": 4.48
+      }
+    ],
+    "Individual Servings Hummus": [
+      {
+        "name": "1 case - 48/2oz. cups",
+        "price": 26.4
+      }
+    ]
+  },
+  "Vitamnins and Omega 3": {
+    "Nordic Naturals Ultimate Omega D3 Sport (NSF)": [
+      {
+        "name": "1 bottle - 60 count",
+        "price": 32.95
+      }
+    ],
+    "Nordic Naturals Ultimate Omega Sport (NSF)": [
+      {
+        "name": "1 bottle - 60 count",
+        "price": 52.95
+      }
+    ],
+    "Naturemade Multivtiamin": [
+      {
+        "name": "1 bottle - 90 count",
+        "price": 12.58
+      }
+    ],
+    "Klean Athlete Multivitamin": [
+      {
+        "name": "1 bottle - 60 count",
+        "price": 21.15
+      }
+    ],
+    "Klean Athlete Probiotic": [
+      {
+        "name": "1 bottle - 60 count",
+        "price": 21.3
+      }
+    ],
+    "Naturemade Vitamin D (5000 IU)": [
+      {
+        "name": "1 bottle - 180 count",
+        "price": 28.99
+      }
+    ],
+    "Klean Athlete Vitamin D (5000 IU)": [
+      {
+        "name": "1 bottle - 100 count",
+        "price": 8.05
+      }
+    ],
+    "Naturemade Calcium": [
+      {
+        "name": "1 bottle - 60 count",
+        "price": 6.99
+      }
+    ],
+    "Beet It Shots": [
+      {
+        "name": "1 case - 60 count",
+        "price": 49.99
+      }
+    ],
+    "Klean Athlete Collagen + C": [
+      {
+        "name": "1 container - 340g",
+        "price": 20.35
+      }
+    ],
+    "KLEAN Magnesium": [
+      {
+        "name": "1 bottle",
+        "price": 12.2
+      }
+    ],
+    "DotFIT Multivitamin": [
+      {
+        "name": "1 bottle",
+        "price": 10.95
+      }
+    ],
+    "Liquid MVI- Insideout": [
+      {
+        "name": "1 box - 8L",
+        "price": 130.0
+      }
+    ]
+  },
+  "Sysco": {
+    "Bill Granola Bars": [
+      {
+        "name": "Chocolate Chip",
+        "price": 1.0
+      },
+      {
+        "name": "Carmel Cashew",
+        "price": 2.0
+      },
+      {
+        "name": "Peanut Butter",
+        "price": 1.0
+      }
+    ],
+    "Snack Chex Mix": [
+      {
+        "name": "Cheddar",
+        "price": 33.03
+      },
+      {
+        "name": "Traditional",
+        "price": 33.03
+      }
+    ]
+  },
+  "Paper Goods": {
+    "Plastic Cups": [
+      {
+        "name": "1 sleeve - 60 cups - 24 oz",
+        "price": 8.02
+      }
+    ],
+    "Paper Plates": [
+      {
+        "name": "1 stack - 100 plates",
+        "price": 5.38
+      }
+    ],
+    "Straws": [
+      {
+        "name": "box - 8/1000ct",
+        "price": 18.16
+      }
+    ],
+    "Lids for (12 oz - 14 oz - 16 oz - 24 oz)": [
+      {
+        "name": "1 sleeve - 100 lids",
+        "price": 1.95
+      }
+    ],
+    "Knives": [
+      {
+        "name": "250 knives",
+        "price": 3.71
+      }
+    ],
+    "Spoons": [
+      {
+        "name": "250 spoons",
+        "price": 3.71
+      }
+    ],
+    "Forks": [
+      {
+        "name": "250 forks",
+        "price": 3.71
+      }
+    ],
+    "Foodservice Gloves": [
+      {
+        "name": "50 pairs",
+        "price": 3.95
+      }
+    ]
+  },
+  "Sams Club": {
+    "Kar's Trail Mix": [
+      {
+        "name": "1 box - 40 packets - 2 oz",
+        "price": 16.28
+      }
+    ],
+    "GoGo Squeeze Applesauce": [
+      {
+        "name": "1 box - 32 packets - 3.2 oz",
+        "price": 15.98
+      }
+    ],
+    "KIND Bars (Assorted)": [
+      {
+        "name": "1 box - 18 bars",
+        "price": 17.98
+      }
+    ],
+    "Clif Bar (Assorted)": [
+      {
+        "name": "1 box - 24 bars - 2.4 oz",
+        "price": 22.78
+      }
+    ],
+    "Nutrigrain Bars": [
+      {
+        "name": "1 box - 36 bars",
+        "price": 9.98
+      }
+    ],
+    "Special K Pastry Bars": [
+      {
+        "name": "1 box - 60 bars",
+        "price": 10.78
+      }
+    ],
+    "Nature's Bakery Fig Bars": [
+      {
+        "name": "1 box - 32 bars",
+        "price": 14.48
+      }
+    ],
+    "Belvita Biscuits (Assorted)": [
+      {
+        "name": "1 box - 25 biscuits",
+        "price": 11.96
+      }
+    ],
+    "Nature Valley Almond Butter Biscuits": [
+      {
+        "name": "1 box - 30 biscuits",
+        "price": 14.48
+      }
+    ],
+    "Nature Valley Protein Bars": [
+      {
+        "name": "1 box - 30 bars",
+        "price": 15.96
+      }
+    ],
+    "Nature Valley Oats & Honey Granola Bars": [
+      {
+        "name": "1 box - 49 ct.",
+        "price": 15.94
+      }
+    ],
+    "Righteous Felon Beef Stick 1 case - 24 sticks - 1 oz": [
+      {
+        "name": "O.G. Hickory",
+        "price": 28.56
+      },
+      {
+        "name": "Fiery Habanero",
+        "price": 28.56
+      },
+      {
+        "name": "Street Taco Pork & Pineapple",
+        "price": 28.56
+      },
+      {
+        "name": "Lemon Basil Peppered Turkey",
+        "price": 28.56
+      }
+    ],
+    "88 Acres Seed Blend Bar 1 box - 9 bars - 1.6 oz": [
+      {
+        "name": "Dark Chocolate Sea Salt",
+        "price": 15.66
+      },
+      {
+        "name": "Triple Berry",
+        "price": 15.66
+      }
+    ],
+    "88 Acres Seed Protein Bar 1 box - 9 bars - 1.9 oz": [
+      {
+        "name": "Dark Chocolate Brownie",
+        "price": 21.33
+      },
+      {
+        "name": "Banana Bread",
+        "price": 21.33
+      }
+    ],
+    "Ferris Cherries, Berries & Nuts Mix": [
+      {
+        "name": "1 box - 24 bags - 1.75 oz",
+        "price": 36.96
+      }
+    ],
+    "Hippeas Organic Chickpea Puffs 1 case - 12 bags - 1.5 oz": [
+      {
+        "name": "Vegan White Cheddar",
+        "price": 23.04
+      },
+      {
+        "name": "Bohemian Barbecue",
+        "price": 23.04
+      },
+      {
+        "name": "Sriracha Sunshine",
+        "price": 23.04
+      }
+    ],
+    "Love, Roasted Corn Kernels 1 box - 10 bags - 1.6 oz": [
+      {
+        "name": "Sea Salt",
+        "price": 16.7
+      },
+      {
+        "name": "Smoked BBQ",
+        "price": 16.7
+      }
+    ],
+    "Quinn Creamy Peanut Butter Filled Pretzel Nuggets": [
+      {
+        "name": "1 case - 48 bags - 1.5 oz",
+        "price": 83.99
+      }
+    ],
+    "Wonderful No Shell Pistachios 110 Cal - 1 case - 48 bags- 0.75 oz": [
+      {
+        "name": "Chili Roasted",
+        "price": 45.78
+      },
+      {
+        "name": "Roasted & Salted",
+        "price": 45.78
+      }
+    ],
+    "Blue Diamond Almonds 1 box - 12 bags - 1.5 oz": [
+      {
+        "name": "Roasted Salted",
+        "price": 15.72
+      },
+      {
+        "name": "Smokehouse",
+        "price": 15.72
+      },
+      {
+        "name": "Sweet Thai Chili",
+        "price": 15.72
+      }
+    ]
+  }
+}

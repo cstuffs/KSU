@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin: Set Team Budgets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-box {
+            background-color: #512888;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black, -1px -1px 2px black,
+                         1px -1px 2px black, -1px 1px 2px black;
+        }
+
+        .content {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        .save-button, .reset-button {
+            background-color: #512888;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            margin-right: 15px;
+        }
+
+        .reset-button:hover, .save-button:hover {
+            background-color: #3e1e6d;
+        }
+
+        .return-button {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #512888;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .return-button:hover {
+            background-color: #3e1e6d;
+        }
+
+        .message {
+            margin-top: 20px;
+            color: green;
+        }
+    </style>
+    <script>
+        function confirmReset() {
+            return confirm("Are you sure you want to reset all remaining budgets?");
+        }
+    </script>
+</head>
+<body>
+
+<div class="header-box">
+    Admin: Set Team Budgets
+</div>
+
+<div class="content">
+    {% if message %}
+        <p class="message">{{ message }}</p>
+    {% endif %}
+
+    <form method="post">
+        {% for team, budget in team_budgets.items() %}
+            <label for="{{ team }}">{{ team }}</label>
+            <input type="text" name="{{ team }}" id="{{ team }}" value="{{ "{:,.1f}".format(budget) }}">
+        {% endfor %}
+
+        <button type="submit" class="save-button">Save Budgets</button>
+        <button type="submit" class="reset-button" name="reset" value="true" onclick="return confirmReset()">Reset Remaining Budgets</button>
+    </form>
+
+    <a href="{{ url_for('admin_dashboard') }}" class="return-button">← Back to Dashboard</a>
+</div>
+
+</body>
+</html>

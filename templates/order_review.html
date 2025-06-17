@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Review Your Order</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-box {
+            background-color: #512888;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black, -1px -1px 2px black,
+                         1px -1px 2px black, -1px 1px 2px black;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .summary {
+            margin-top: 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .buttons {
+            margin-top: 30px;
+        }
+
+        .buttons form {
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        .action-button {
+            background-color: #512888;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .action-button:hover {
+            background-color: #3e1e6d;
+        }
+
+        .empty-message {
+            padding: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-box">
+    Review Your Order
+</div>
+
+<div class="content">
+
+    <p><strong>Week:</strong> {{ week_range }}</p>
+
+    {% if items %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Option</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.option }}</td>
+                    <td>${{ '%.2f'|format(item.price) }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ '%.2f'|format(item.subtotal) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p class="summary"><strong>Total:</strong> ${{ '%.2f'|format(total) }}</p>
+
+        <div class="buttons">
+            <form method="POST" action="{{ url_for('finalize_order') }}">
+                {% for key, value in form_data.items() %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endfor %}
+                <button type="submit" class="action-button"> Submit Order</button>
+            </form>
+
+            <form method="POST" action="{{ url_for('order_form_edit') }}">
+                {% for key, value in form_data.items() %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endfor %}
+                <button type="submit" class="action-button"> Edit Order</button>
+            </form>
+
+            <form method="GET" action="{{ url_for('submit_order') }}">
+                <button type="submit" class="action-button">← Back to Order Page</button>
+            </form>
+        </div>
+
+    {% else %}
+        <div class="empty-message">No items in your order.</div>
+        <form method="GET" action="{{ url_for('submit_order') }}?new=1">
+            <button type="submit" class="action-button">← Start a New Order</button>
+        </form>
+    {% endif %}
+</div>
+
+</body>
+</html>
