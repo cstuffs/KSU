@@ -9,25 +9,22 @@ from datetime import datetime, timedelta
 import json
 import os
 
-# === Flask App Setup ===
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'
 
-# === Database Configuration ===
-import os
-
-basedir = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(basedir, 'instance', 'local.db')
-
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
+# Set DB URI
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///local_fallback.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+# Initialize (but don’t define models here)
+db = SQLAlchemy()
+db.init_app(app)
 
-# === Flask-Login Setup ===
+from models import Team, User, Order, OrderItem
+
+# Setup LoginManager
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
 
 # === Models ===
 class Team(db.Model):
