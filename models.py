@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from app import db  # ✅ Correct import
+from extensions import db   # ✅ Correct import
 
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from collections import OrderedDict
 from io import BytesIO
 from openpyxl import Workbook
+from extensions import db
 from models import db, Team, User, Order, OrderItem
 from datetime import datetime, timedelta
 import json
@@ -17,7 +18,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize (but don’t define models here)
-db = SQLAlchemy()
 db.init_app(app)
 
 from models import Team, User, Order, OrderItem
