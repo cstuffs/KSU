@@ -834,6 +834,12 @@ def recreate_db():
     db.create_all()
     print("✅ Dropped and recreated all tables.")
 
+@app.route('/seed')
+def seed():
+    from seed_data import seed_db
+    seed_db()
+    return "✅ Database seeded."
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
