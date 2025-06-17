@@ -6,6 +6,7 @@ from io import BytesIO
 from openpyxl import Workbook
 from extensions import db
 from models import db, Team, User, Order, OrderItem
+from models import MenuGroup, MenuItem, MenuOption
 from datetime import datetime, timedelta
 import json
 import os
@@ -116,8 +117,17 @@ def submit_order():
     week_range_str = f"{start_of_week.strftime('%-m/%-d/%y')} - {end_of_week.strftime('%-m/%-d/%y')}"
 
     # ✅ Load structured menu
-    with open('structured_menu.json', 'r') as f:
-        grouped_menu = json.load(f, object_pairs_hook=OrderedDict)
+    from models import MenuGroup, MenuItem, MenuOption
+
+    # Load menu from DB
+    grouped_menu = OrderedDict()
+    groups = MenuGroup.query.order_by(MenuGroup.name).all()
+    for group in groups:
+        group_data = OrderedDict()
+        for item in group.items:
+            options = [{"name": opt.name, "price": opt.price} for opt in item.options]
+            group_data[item.name] = options
+        grouped_menu[group.name] = group_data
 
     return render_template("order.html",
                            current_user=current_user,
@@ -319,14 +329,10 @@ def admin_dashboard():
 @app.route('/admin/dashboard')
 @login_required
 def admin_dashboard_view():
-    if current_user.id != 'admin' and not session.get('admin_as_football'):
+    if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
         return "Access Denied", 403
 
-    # ✅ Load from users.json to include *all* teams
-    with open('users.json') as f:
-        users_data = json.load(f, object_pairs_hook=OrderedDict)
-
-    teams = list(users_data.keys())  # include all teams, even empty
+    teams = [team.name for team in Team.query.order_by(Team.name).all()]
 
     return render_template("admin_dashboard.html", teams=teams)
 
@@ -747,46 +753,60 @@ def edit_menu():
     if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
         return "Access Denied", 403
 
-    menu_path = 'structured_menu.json'
-
     if request.method == 'POST':
         form = request.form
-        updated_menu = OrderedDict()
+
+        # Clear existing menu
+        MenuOption.query.delete()
+        MenuItem.query.delete()
+        MenuGroup.query.delete()
+        db.session.commit()
 
         group_names = [key.split('[')[1].split(']')[0] for key in form.keys() if key.startswith("group_names[")]
         group_names = list(OrderedDict.fromkeys(group_names))
 
         for group in group_names:
+            group_obj = MenuGroup(name=group)
+            db.session.add(group_obj)
+            db.session.flush()
+
             item_names = form.getlist(f'group_names[{group}][item_names][]')
-            group_data = OrderedDict()
             for item_name in item_names:
                 item_name = item_name.strip()
                 if not item_name:
                     continue
+
                 options = form.getlist(f'options[{item_name}][]')
                 prices = form.getlist(f'prices[{item_name}][]')
                 if not options or not prices or len(options) != len(prices):
                     continue
-                item_options = []
-                for opt, price_str in zip(options, prices):
-                    opt = opt.strip()
+
+                item_obj = MenuItem(name=item_name, group_id=group_obj.id)
+                db.session.add(item_obj)
+                db.session.flush()
+
+                for opt_name, price_str in zip(options, prices):
+                    opt_name = opt_name.strip()
                     try:
                         price = float(price_str)
-                        if opt:
-                            item_options.append({ "name": opt, "price": price })
+                        if opt_name:
+                            db.session.add(MenuOption(name=opt_name, price=price, item_id=item_obj.id))
                     except ValueError:
                         continue
-                if item_options:
-                    group_data[item_name] = item_options
-            if group_data:
-                updated_menu[group] = group_data
 
-        with open(menu_path, 'w') as f:
-            json.dump(updated_menu, f, indent=2)
+        db.session.commit()
         return redirect(url_for('edit_menu'))
 
-    with open(menu_path, 'r') as f:
-        grouped_menu = json.load(f, object_pairs_hook=OrderedDict)
+    # GET: Load from DB
+    grouped_menu = OrderedDict()
+    groups = MenuGroup.query.order_by(MenuGroup.name).all()
+    for group in groups:
+        group_data = OrderedDict()
+        for item in group.items:
+            options = [{"name": opt.name, "price": opt.price} for opt in item.options]
+            group_data[item.name] = options
+        grouped_menu[group.name] = group_data
+
     return render_template('edit_menu_fixed.html', grouped_menu=grouped_menu)
 
 @app.route('/admin/edit_users', methods=['GET', 'POST'])
@@ -832,6 +852,12 @@ def seed():
     from seed_data import seed_db
     seed_db()
     return "✅ Database seeded."
+
+@app.route('/seed_menu')
+def seed_menu_route():
+    from seed_menu import seed_menu
+    seed_menu()
+    return "✅ Menu seeded."
 
 # === Run the App ===
 if __name__ == '__main__':
