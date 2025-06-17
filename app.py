@@ -355,7 +355,7 @@ def admin_dashboard():
 
 @app.route('/admin/dashboard')
 @login_required
-def admin_dashboard():
+def admin_dashboard_view():
     if current_user.id != 'admin' and not session.get('admin_as_football'):
         return "Access Denied", 403
 
