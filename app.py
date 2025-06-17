@@ -866,9 +866,11 @@ def edit_users():
 
 @app.route('/init_db')
 def init_db():
-    from models import db  # if you're using a separate models.py
-    db.create_all()
-    return "✅ Database initialized!"
+    try:
+        db.create_all()
+        return "✅ Database initialized!"
+    except Exception as e:
+        return f"❌ Error: {e}", 500
 
 # === Run the App ===
 if __name__ == '__main__':
