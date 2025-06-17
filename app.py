@@ -834,6 +834,11 @@ def init_db():
         return "✅ Database initialized!"
     except Exception as e:
         return f"❌ Error: {e}", 500
+    
+@app.route('/seed')
+def seed_database():
+    import seed_data
+    return "✅ Database seeded"
 
 # === Run the App ===
 if __name__ == '__main__':
