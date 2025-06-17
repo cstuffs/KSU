@@ -827,13 +827,6 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
-@app.before_first_request
-def recreate_db():
-    from models import db
-    db.drop_all()
-    db.create_all()
-    print("✅ Dropped and recreated all tables.")
-
 @app.route('/seed')
 def seed():
     from seed_data import seed_db
