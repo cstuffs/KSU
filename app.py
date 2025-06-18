@@ -343,12 +343,8 @@ def admin_produce_hyvee():
         return "Access Denied", 403
 
     # Load structured menu to get Produce + Hyvee items
-    with open("structured_menu.json", "r") as f:
-        menu = json.load(f)
-
-    produce_items = set(menu.get("Produce", {}).keys())
-    hyvee_items = set(menu.get("Hyvee", {}).keys())
-    valid_items = produce_items | hyvee_items
+    groups = MenuGroup.query.filter(MenuGroup.name.in_(["Produce", "Hyvee"])).all()
+    valid_items = {item.name for group in groups for item in group.items}
 
     # Define current week range
     today = datetime.now()
@@ -386,12 +382,8 @@ def export_produce_hyvee_excel():
     end_of_week = start_of_week + timedelta(days=6)
 
     # Load valid Produce and Hyvee item names
-    with open("structured_menu.json", "r") as f:
-        menu = json.load(f)
-
-    produce_items = set(menu.get("Produce", {}).keys())
-    hyvee_items = set(menu.get("Hyvee", {}).keys())
-    valid_items = produce_items | hyvee_items
+    groups = MenuGroup.query.filter(MenuGroup.name.in_(["Produce", "Hyvee"])).all()
+    valid_items = {item.name for group in groups for item in group.items}
 
     # Create Excel workbook
     wb_out = Workbook()
@@ -513,16 +505,13 @@ def view_team_orders(team_name):
     end_of_week = start_of_week + timedelta(days=6)
     week_range_str = f"{start_of_week.strftime('%-m/%-d/%y')} - {end_of_week.strftime('%-m/%-d/%y')}"
 
-    # Load prices from structured_menu.json
-    with open('structured_menu.json', 'r') as f:
-        full_menu = json.load(f)
-
-    price_lookup = {
-        f"{item_name}|||{opt['name']}": opt["price"]
-        for group in full_menu.values()
-        for item_name, options in group.items()
-        for opt in options
-    }
+        # Build price lookup from DB
+    price_lookup = {}
+    all_items = MenuItem.query.all()
+    for item in all_items:
+        for opt in item.options:
+            key = f"{item.name}|||{opt.name}"
+            price_lookup[key] = opt.price
 
     # Init structures
     weekly_orders_by_member = {}
@@ -627,15 +616,11 @@ def weekly_totals():
     if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
         return "Access Denied", 403
 
-    # Load structured menu and build price lookup
-    with open("structured_menu.json", "r") as f:
-        menu = json.load(f)
-
+    # Build price lookup from the database
     price_lookup = {
-        f"{item}|||{opt['name']}": opt["price"]
-        for group in menu.values()
-        for item, options in group.items()
-        for opt in options
+        f"{item.name}|||{opt.name}": opt.price
+        for item in MenuItem.query.all()
+        for opt in item.options
     }
 
     def get_week_number(date):
@@ -668,7 +653,7 @@ def weekly_totals():
             current = yearly_totals_by_week[year][week].get(team_name, 0.0)
             yearly_totals_by_week[year][week][team_name] = current + subtotal
 
-    # Make sure every week/year has all teams
+    # Ensure every week/year has all teams
     all_team_names = [team.name for team in Team.query.order_by(Team.name).all()]
     for year in all_years:
         for week in range(1, 53):
