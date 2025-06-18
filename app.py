@@ -21,8 +21,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize (but don’t define models here)
 db.init_app(app)
 
-from models import Team, User, Order, OrderItem
-
 # Setup LoginManager
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -121,7 +119,7 @@ def submit_order():
 
     # Load menu from DB
     grouped_menu = OrderedDict()
-    groups = MenuGroup.query.order_by(MenuGroup.name).all()
+    groups = MenuGroup.query.order_by(MenuGroup.id).all()
     for group in groups:
         group_data = OrderedDict()
         for item in group.items:
@@ -784,7 +782,7 @@ def edit_menu():
 
     # GET: Load from DB
     grouped_menu = OrderedDict()
-    groups = MenuGroup.query.order_by(MenuGroup.name).all()
+    groups = MenuGroup.query.order_by(MenuGroup.id).all()
     for group in groups:
         group_data = OrderedDict()
         for item in group.items:
