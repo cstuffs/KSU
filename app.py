@@ -832,11 +832,11 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
-@app.route('/seed')
-def seed():
-    from seed_data import seed_db
-    seed_db()
-    return "✅ Database seeded."
+@app.route('/init_menu_tables')
+def init_menu_tables():
+    from models import db
+    db.create_all()
+    return "✅ Menu tables created."
 
 @app.route('/seed_menu')
 def seed_menu_route():
