@@ -832,11 +832,11 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
-@app.route('/init_menu_tables')
-def init_menu_tables():
-    from models import db
+@app.route('/init_db')
+def init_db():
+    from models import db, MenuGroup, MenuItem, MenuOption, Team, User, Order, OrderItem
     db.create_all()
-    return "✅ Menu tables created."
+    return "✅ All tables created"
 
 @app.route('/seed_menu')
 def seed_menu_route():
