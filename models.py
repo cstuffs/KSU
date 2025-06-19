@@ -1,12 +1,5 @@
 from flask_login import UserMixin
-from extensions import db   # ✅ Correct import
-
-is_active = db.Column(db.Boolean, default=True)
-
-# Optional: override Flask-Login behavior
-@property
-def is_active(self):
-    return self.is_active
+from extensions import db
 
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,14 +9,20 @@ class Team(db.Model):
     members = db.relationship('User', backref='team', lazy=True)
     orders = db.relationship('Order', backref='team', lazy=True)
 
-class User(UserMixin, db.Model):  # ✅ Include UserMixin
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    is_enabled = db.Column(db.Boolean, default=True)  # ✅ Soft-delete flag
     orders = db.relationship('Order', backref='user', lazy=True)
 
     def get_id(self):
         return str(self.id)
+
+    @property
+    def is_active(self):
+        # Used by Flask-Login to determine if user can log in
+        return self.is_enabled
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -57,4 +56,3 @@ class MenuOption(db.Model):
     name = db.Column(db.String, nullable=False)
     price = db.Column(db.Float, nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
-

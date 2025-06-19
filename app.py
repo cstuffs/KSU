@@ -58,25 +58,27 @@ def login():
             User.team_id == team.id
         ).first()
 
-        # After finding the user
-        if not user.is_active:
+        if not user:
+            return f"User '{raw_name}' not found on team '{raw_team}'.", 403
+
+        # ❌ Block deactivated users
+        if not user.is_enabled:
             return f"User '{raw_name}' is deactivated and cannot log in.", 403
 
-        # Save user session
+        # ✅ Log the user in
         login_user(user)
         session['team'] = team.name
         session['member_name'] = user.name
 
-        # Admin rules
+        # ✅ Admin rules for KSU Football
         if team.name == "KSU Football":
             if user.name == "Scott Trausch":
                 session['admin_as_football'] = False  # Full admin
-                return redirect(url_for('admin_dashboard'))
             else:
                 session['admin_as_football'] = True  # Limited admin
-                return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('admin_dashboard'))
 
-        # All others: standard user
+        # ✅ Standard user login
         session['admin_as_football'] = False
         return redirect(url_for('submit_order'))
 
@@ -808,35 +810,34 @@ def edit_users():
             if not team_name:
                 continue
 
+            # Find or create the team
             team = Team.query.filter_by(name=team_name).first()
             if not team:
                 team = Team(name=team_name, budget=100.0)
                 db.session.add(team)
                 db.session.flush()
 
-            # Clear and re-add users
-            # Deactivate all existing users on that team
-            # Deactivate current users
+            # Step 1: Deactivate all users currently on this team
             for existing_user in User.query.filter_by(team_id=team.id).all():
-                existing_user.is_active = False
+                existing_user.is_enabled = False
 
-            # Reactivate or add new users
+            # Step 2: Reactivate listed users, or add them if new
             members = [m.strip() for m in members_raw.splitlines() if m.strip()]
             for member_name in members:
                 existing = User.query.filter_by(name=member_name, team_id=team.id).first()
                 if existing:
-                    existing.is_active = True
+                    existing.is_enabled = True  # Reactivate
                 else:
-                    db.session.add(User(name=member_name, team_id=team.id))
+                    db.session.add(User(name=member_name, team_id=team.id, is_enabled=True))  # Create new
 
         db.session.commit()
         return redirect(url_for('admin_dashboard'))
 
-    # Display current team/user structure
+    # GET: Render form with existing users by team
     teams = Team.query.order_by(Team.name).all()
     users_by_team = OrderedDict()
     for team in teams:
-        users_by_team[team.name] = [user.name for user in team.members]
+        users_by_team[team.name] = [user.name for user in team.members if user.is_enabled]
 
     return render_template("edit_users.html", users=users_by_team)
 
