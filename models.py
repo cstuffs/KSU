@@ -1,6 +1,13 @@
 from flask_login import UserMixin
 from extensions import db   # ✅ Correct import
 
+is_active = db.Column(db.Boolean, default=True)
+
+# Optional: override Flask-Login behavior
+@property
+def is_active(self):
+    return self.is_active
+
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)

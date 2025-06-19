@@ -58,8 +58,9 @@ def login():
             User.team_id == team.id
         ).first()
 
-        if not user:
-            return f"User '{raw_name}' not found on team '{raw_team}'.", 403
+        # After finding the user
+        if not user.is_active:
+            return f"User '{raw_name}' is deactivated and cannot log in.", 403
 
         # Save user session
         login_user(user)
@@ -814,10 +815,19 @@ def edit_users():
                 db.session.flush()
 
             # Clear and re-add users
-            User.query.filter_by(team_id=team.id).delete()
+            # Deactivate all existing users on that team
+            # Deactivate current users
+            for existing_user in User.query.filter_by(team_id=team.id).all():
+                existing_user.is_active = False
+
+            # Reactivate or add new users
             members = [m.strip() for m in members_raw.splitlines() if m.strip()]
             for member_name in members:
-                db.session.add(User(name=member_name, team_id=team.id))
+                existing = User.query.filter_by(name=member_name, team_id=team.id).first()
+                if existing:
+                    existing.is_active = True
+                else:
+                    db.session.add(User(name=member_name, team_id=team.id))
 
         db.session.commit()
         return redirect(url_for('admin_dashboard'))
