@@ -841,17 +841,11 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
-@app.route('/init_db')
-def init_db():
-    from models import db, MenuGroup, MenuItem, MenuOption, Team, User, Order, OrderItem
-    db.create_all()
-    return "✅ All tables created"
-
-@app.route('/seed_menu')
-def seed_menu_route():
-    from seed_menu import seed_menu
-    seed_menu()
-    return "✅ Menu seeded."
+@app.route('/patch_is_enabled')
+def patch_is_enabled():
+    db.session.execute('ALTER TABLE "user" ADD COLUMN is_enabled BOOLEAN DEFAULT TRUE;')
+    db.session.commit()
+    return "✅ is_enabled column added."
 
 # === Run the App ===
 if __name__ == '__main__':
