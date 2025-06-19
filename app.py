@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from collections import OrderedDict
 from io import BytesIO
 from openpyxl import Workbook
+from sqlalchemy import text 
 from extensions import db
 from models import db, Team, User, Order, OrderItem
 from models import MenuGroup, MenuItem, MenuOption
@@ -844,12 +845,13 @@ def edit_users():
 @app.route('/patch_is_enabled')
 def patch_is_enabled():
     try:
-        db.session.execute('ALTER TABLE "user" ADD COLUMN is_enabled BOOLEAN DEFAULT TRUE;')
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN is_enabled BOOLEAN DEFAULT TRUE;'))
         db.session.commit()
         return "✅ 'is_enabled' column added successfully."
     except Exception as e:
         db.session.rollback()
         return f"❌ Failed to patch database: {str(e)}", 500
+
 
 # === Run the App ===
 if __name__ == '__main__':
