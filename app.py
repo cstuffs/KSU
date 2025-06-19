@@ -843,9 +843,13 @@ def edit_users():
 
 @app.route('/patch_is_enabled')
 def patch_is_enabled():
-    db.session.execute('ALTER TABLE "user" ADD COLUMN is_enabled BOOLEAN DEFAULT TRUE;')
-    db.session.commit()
-    return "✅ is_enabled column added."
+    try:
+        db.session.execute('ALTER TABLE "user" ADD COLUMN is_enabled BOOLEAN DEFAULT TRUE;')
+        db.session.commit()
+        return "✅ 'is_enabled' column successfully added to user table."
+    except Exception as e:
+        db.session.rollback()
+        return f"❌ Error: {str(e)}", 500
 
 # === Run the App ===
 if __name__ == '__main__':
