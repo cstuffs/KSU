@@ -31,6 +31,7 @@
             border-collapse: collapse;
             width: max-content;
             min-width: 100%;
+            table-layout: fixed;
         }
 
         th, td {
@@ -40,7 +41,6 @@
             white-space: nowrap;
         }
 
-        /* Top row header */
         thead th {
             position: sticky;
             top: 0;
@@ -50,7 +50,6 @@
             text-align: center;
         }
 
-        /* Sticky 1st column: Week # */
         td:first-child, th:first-child {
             position: sticky;
             left: 0;
@@ -60,10 +59,9 @@
             text-align: center;
         }
 
-        /* Sticky 2nd column: Week Range */
         td:nth-child(2), th:nth-child(2) {
             position: sticky;
-            left: 100px; /* match the actual width of column 1 */
+            left: 100px;
             min-width: 160px;
             background-color: #ffffff;
             z-index: 4;
@@ -97,7 +95,7 @@
             <thead>
                 <tr>
                     <th>Week #</th>
-                    <th>Week Range</th>
+                    <th>Date</th>
                     {% for team in users %}
                         <th>{{ team }} {{ years[-1] }}</th>
                     {% endfor %}
