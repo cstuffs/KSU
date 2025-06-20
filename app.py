@@ -34,6 +34,17 @@ def load_user(user_id):
 # === Create Tables Automatically ===
 db_created = False
 
+def get_week_number(date):
+    """Returns week number where Week 1 is the week containing July 1st."""
+    july_first = datetime(date.year, 7, 1).date()
+
+    # Start weeks on Sunday
+    if july_first.weekday() != 6:
+        july_first -= timedelta(days=july_first.weekday() + 1)
+
+    delta = date - july_first
+    return (delta.days // 7) + 1
+
 # === Example Home Route ===
 @app.route('/')
 def home():
@@ -625,13 +636,6 @@ def weekly_totals():
         for opt in item.options
     }
 
-    def get_week_number(date):
-        year_start = datetime(date.year, 1, 1).date()
-        if year_start.weekday() != 6:
-            year_start -= timedelta(days=year_start.weekday() + 1)
-        delta = date - year_start
-        return (delta.days // 7) + 1
-
     yearly_totals_by_week = {}
     all_years = set()
 
@@ -688,7 +692,7 @@ def all_orders():
         member_name = order.user.name
         team_name = order.team.name
         year = order_date.year
-        week_num = (order_date - datetime(2025, 1, 1).date()).days // 7 + 1
+        week_num = get_week_number(order_date)
 
         for item in order.items:
             all_orders.append({
