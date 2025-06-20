@@ -40,12 +40,20 @@
             white-space: nowrap;
         }
 
-        /* Only two sticky columns: Week # and Week Range */
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: #512888;
+            color: white;
+            z-index: 2;
+            text-align: center;
+        }
+
         td:first-child, th:first-child {
             position: sticky;
             left: 0;
             background-color: #ffffff;
-            z-index: 2;
+            z-index: 3;
             text-align: center;
         }
 
@@ -53,15 +61,6 @@
             position: sticky;
             left: 120px;
             background-color: #ffffff;
-            z-index: 2;
-            text-align: center;
-        }
-
-        thead th {
-            position: sticky;
-            top: 0;
-            background-color: #512888;
-            color: white;
             z-index: 3;
             text-align: center;
         }
@@ -95,12 +94,12 @@
                     <th>Week #</th>
                     <th>Week Range</th>
                     {% for team in users %}
-                        <th>{{ team }}</th>
+                        <th>{{ team }} {{ years[-1] }}</th>
                     {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                {% set year = 2025 %}
+                {% set year = years[-1] %}
                 {% set july_first = datetime(year, 7, 1).date() %}
                 {% if july_first.weekday() != 6 %}
                     {% set july_first = july_first - timedelta(days=july_first.weekday() + 1) %}
