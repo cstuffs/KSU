@@ -40,28 +40,33 @@
             white-space: nowrap;
         }
 
+        /* Top row header */
         thead th {
             position: sticky;
             top: 0;
             background-color: #512888;
             color: white;
-            z-index: 2;
+            z-index: 5;
             text-align: center;
         }
 
+        /* Sticky 1st column: Week # */
         td:first-child, th:first-child {
             position: sticky;
             left: 0;
+            min-width: 100px;
             background-color: #ffffff;
-            z-index: 3;
+            z-index: 4;
             text-align: center;
         }
 
+        /* Sticky 2nd column: Week Range */
         td:nth-child(2), th:nth-child(2) {
             position: sticky;
-            left: 120px;
+            left: 100px; /* match the actual width of column 1 */
+            min-width: 160px;
             background-color: #ffffff;
-            z-index: 3;
+            z-index: 4;
             text-align: center;
         }
 
