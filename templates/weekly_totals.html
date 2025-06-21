@@ -41,32 +41,33 @@
             white-space: nowrap;
         }
 
+        /* Sticky top row headers */
         thead th {
             position: sticky;
             top: 0;
             background-color: #512888;
             color: white;
-            z-index: 30;
+            z-index: 10;
             text-align: center;
         }
 
+        /* Sticky Week # column */
         td:first-child, th:first-child {
             position: sticky;
             left: 0;
             min-width: 100px;
-            background-color: #512888;
-            color: white;
-            z-index: 20;
+            background-color: #ffffff;
+            z-index: 11;
             text-align: center;
         }
 
+        /* Sticky Date column */
         td:nth-child(2), th:nth-child(2) {
             position: sticky;
             left: 100px;
             min-width: 160px;
-            background-color: #512888;
-            color: white;
-            z-index: 20;
+            background-color: #ffffff;
+            z-index: 11;
             text-align: center;
         }
 
@@ -86,20 +87,6 @@
 
         .back-button:hover {
             background-color: #6a3ab2;
-        }
-
-        .download-button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-
-        .download-button:hover {
-            background-color: #218838;
         }
     </style>
 </head>
@@ -142,7 +129,7 @@
 
     <div class="button-container">
         <a href="{{ url_for('admin_dashboard') }}" class="back-button">← Back to Dashboard</a>
-        <a href="{{ url_for('download_weekly_totals') }}" class="download-button">Download Excel</a>
+        <a href="{{ url_for('download_weekly_totals') }}" class="back-button" style="background-color: #28a745; margin-left: 10px;">⬇ Download Excel</a>
     </div>
 </body>
 </html>
