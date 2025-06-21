@@ -679,31 +679,32 @@ def weekly_totals():
 @app.route('/download_weekly_totals')
 @login_required
 def download_weekly_totals():
-    from datetime import datetime, timedelta
+    if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
+        return "Access Denied", 403
 
+    # Build price lookup
     price_lookup = {
         f"{item.name}|||{opt.name}": opt.price
         for item in MenuItem.query.all()
         for opt in item.options
     }
 
-    orders = Order.query.join(Team).all()
+    # Build yearly totals by week
     yearly_totals_by_week = {}
-    all_teams = set()
     all_years = set()
+    all_teams = [team.name for team in Team.query.order_by(Team.name).all()]
 
+    orders = Order.query.join(Team).all()
     for order in orders:
         team_name = order.team.name
         year = order.date.year
         week = get_week_number(order.date)
-        all_teams.add(team_name)
-        all_years.add(year)
 
+        all_years.add(year)
         if week < 1 or week > 52:
             continue
 
         yearly_totals_by_week.setdefault(year, {}).setdefault(week, {})
-
         for item in order.items:
             key = f"{item.item_name}|||{item.option_name}"
             price = price_lookup.get(key, 0.0)
@@ -711,34 +712,47 @@ def download_weekly_totals():
             current = yearly_totals_by_week[year][week].get(team_name, 0.0)
             yearly_totals_by_week[year][week][team_name] = current + subtotal
 
-    users = sorted(list(all_teams))
-    years = sorted(list(all_years))
-    year = years[-1]
+    # Fill missing values with 0 for all teams
+    for year in all_years:
+        for week in range(1, 53):
+            yearly_totals_by_week.setdefault(year, {}).setdefault(week, {})
+            for team in all_teams:
+                yearly_totals_by_week[year][week].setdefault(team, 0.0)
+
+    # Write to Excel
+    from openpyxl import Workbook
+    from io import BytesIO
+    from datetime import datetime, timedelta
 
     wb = Workbook()
     ws = wb.active
     ws.title = "Weekly Totals"
 
-    headers = ["Week #", "Date"] + [f"{team} {year}" for team in users]
-    ws.append(headers)
-
+    year = max(all_years)
     july_first = datetime(year, 7, 1).date()
     if july_first.weekday() != 6:
-        july_first -= timedelta(days=july_first.weekday() + 1)
+        july_first = july_first - timedelta(days=july_first.weekday() + 1)
+
+    headers = ["Week #", "Date"] + all_teams
+    ws.append(headers)
 
     for week in range(1, 53):
         start_of_week = july_first + timedelta(weeks=week - 1)
         end_of_week = start_of_week + timedelta(days=6)
         row = [f"Week {week}", f"{start_of_week.strftime('%-m/%-d/%y')} - {end_of_week.strftime('%-m/%-d/%y')}"]
-        for team in users:
-            amount = yearly_totals_by_week.get(year, {}).get(week, {}).get(team, 0.0)
-            row.append(round(amount, 2))
+        for team in all_teams:
+            value = round(yearly_totals_by_week[year][week][team], 2)
+            row.append(value)
         ws.append(row)
 
     output = BytesIO()
     wb.save(output)
     output.seek(0)
-    return send_file(output, as_attachment=True, download_name="weekly_totals.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+    return send_file(output,
+                     download_name="weekly_totals.xlsx",
+                     as_attachment=True,
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 @app.route('/admin/all_orders')
 @login_required
