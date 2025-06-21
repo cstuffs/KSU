@@ -41,18 +41,19 @@
             white-space: nowrap;
         }
 
-        /* Sticky top header row */
-        thead th {
+        /* Sticky team name row */
+        thead tr:first-child th {
             position: sticky;
             top: 0;
             background-color: #512888;
             color: white;
-            z-index: 30;
+            z-index: 50;
             text-align: center;
         }
 
-        /* Sticky left column: Week # */
-        td:first-child, th:first-child {
+        /* Sticky left columns: Week # and Date */
+        td:first-child,
+        th:first-child {
             position: sticky;
             left: 0;
             min-width: 100px;
@@ -62,8 +63,8 @@
             text-align: center;
         }
 
-        /* Sticky left column: Date */
-        td:nth-child(2), th:nth-child(2) {
+        td:nth-child(2),
+        th:nth-child(2) {
             position: sticky;
             left: 100px;
             min-width: 160px;
@@ -71,6 +72,15 @@
             color: white;
             z-index: 20;
             text-align: center;
+        }
+
+        /* Sticky second header row */
+        thead tr:nth-child(2) th:first-child {
+            z-index: 30;
+        }
+
+        thead tr:nth-child(2) th:nth-child(2) {
+            z-index: 30;
         }
 
         .button-container {
