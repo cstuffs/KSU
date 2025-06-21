@@ -676,6 +676,70 @@ def weekly_totals():
         timedelta=timedelta
     )
 
+@app.route('/download_weekly_totals')
+@login_required
+def download_weekly_totals():
+    from datetime import datetime, timedelta
+
+    price_lookup = {
+        f"{item.name}|||{opt.name}": opt.price
+        for item in MenuItem.query.all()
+        for opt in item.options
+    }
+
+    orders = Order.query.join(Team).all()
+    yearly_totals_by_week = {}
+    all_teams = set()
+    all_years = set()
+
+    for order in orders:
+        team_name = order.team.name
+        year = order.date.year
+        week = get_week_number(order.date)
+        all_teams.add(team_name)
+        all_years.add(year)
+
+        if week < 1 or week > 52:
+            continue
+
+        yearly_totals_by_week.setdefault(year, {}).setdefault(week, {})
+
+        for item in order.items:
+            key = f"{item.item_name}|||{item.option_name}"
+            price = price_lookup.get(key, 0.0)
+            subtotal = item.quantity * price
+            current = yearly_totals_by_week[year][week].get(team_name, 0.0)
+            yearly_totals_by_week[year][week][team_name] = current + subtotal
+
+    users = sorted(list(all_teams))
+    years = sorted(list(all_years))
+    year = years[-1]
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Weekly Totals"
+
+    headers = ["Week #", "Date"] + [f"{team} {year}" for team in users]
+    ws.append(headers)
+
+    july_first = datetime(year, 7, 1).date()
+    if july_first.weekday() != 6:
+        july_first -= timedelta(days=july_first.weekday() + 1)
+
+    for week in range(1, 53):
+        start_of_week = july_first + timedelta(weeks=week - 1)
+        end_of_week = start_of_week + timedelta(days=6)
+        row = [f"Week {week}", f"{start_of_week.strftime('%-m/%-d/%y')} - {end_of_week.strftime('%-m/%-d/%y')}"]
+        for team in users:
+            amount = yearly_totals_by_week.get(year, {}).get(week, {}).get(team, 0.0)
+            row.append(round(amount, 2))
+        ws.append(row)
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name="weekly_totals.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
 @app.route('/admin/all_orders')
 @login_required
 def all_orders():
