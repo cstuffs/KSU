@@ -3,6 +3,10 @@
 <head>
     <title>Weekly Totals Summary</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -29,9 +33,9 @@
 
         table {
             border-collapse: collapse;
+            table-layout: fixed;
             width: max-content;
             min-width: 100%;
-            table-layout: fixed;
         }
 
         th, td {
@@ -42,7 +46,14 @@
             background-color: white;
         }
 
-        /* Top row header */
+        col.col-week {
+            width: 120px;
+        }
+
+        col.col-date {
+            width: 180px;
+        }
+
         thead th {
             position: sticky;
             top: 0;
@@ -52,33 +63,28 @@
             text-align: center;
         }
 
-        /* Sticky WEEK # and DATE columns */
-        td:first-child,
-        th:first-child {
+        /* Left sticky columns: WEEK and DATE */
+        td:first-child, th:first-child {
             position: sticky;
             left: 0;
             background-color: #512888;
             color: white;
-            min-width: 100px;
-            z-index: 3; /* slightly above team columns, but below header row */
-            text-align: center;
-        }
-
-        td:nth-child(2),
-        th:nth-child(2) {
-            position: sticky;
-            left: 100px;
-            background-color: #512888;
-            color: white;
-            min-width: 160px;
             z-index: 3;
             text-align: center;
         }
 
-        /* Ensure top-left cells layer properly */
-        thead th:first-child,
-        thead th:nth-child(2) {
-            z-index: 4; /* highest: top + left corner cells */
+        td:nth-child(2), th:nth-child(2) {
+            position: sticky;
+            left: 120px;
+            background-color: #512888;
+            color: white;
+            z-index: 3;
+            text-align: center;
+        }
+
+        /* Top-left cells highest z-index */
+        thead th:first-child, thead th:nth-child(2) {
+            z-index: 4;
         }
 
         .button-container {
@@ -105,6 +111,13 @@
 
     <div class="scroll-wrapper">
         <table>
+            <colgroup>
+                <col class="col-week">
+                <col class="col-date">
+                {% for team in users %}
+                    <col>
+                {% endfor %}
+            </colgroup>
             <thead>
                 <tr>
                     <th>Week #</th>
