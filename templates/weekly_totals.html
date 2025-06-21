@@ -39,27 +39,28 @@
             padding: 8px 12px;
             text-align: right;
             white-space: nowrap;
+            background-color: white;
         }
 
-        /* Sticky team name row */
-        thead tr:first-child th {
+        /* Top row header */
+        thead th {
             position: sticky;
             top: 0;
             background-color: #512888;
             color: white;
-            z-index: 50;
+            z-index: 2;
             text-align: center;
         }
 
-        /* Sticky left columns: Week # and Date */
+        /* Sticky WEEK # and DATE columns */
         td:first-child,
         th:first-child {
             position: sticky;
             left: 0;
-            min-width: 100px;
             background-color: #512888;
             color: white;
-            z-index: 20;
+            min-width: 100px;
+            z-index: 3; /* slightly above team columns, but below header row */
             text-align: center;
         }
 
@@ -67,20 +68,17 @@
         th:nth-child(2) {
             position: sticky;
             left: 100px;
-            min-width: 160px;
             background-color: #512888;
             color: white;
-            z-index: 20;
+            min-width: 160px;
+            z-index: 3;
             text-align: center;
         }
 
-        /* Sticky second header row */
-        thead tr:nth-child(2) th:first-child {
-            z-index: 30;
-        }
-
-        thead tr:nth-child(2) th:nth-child(2) {
-            z-index: 30;
+        /* Ensure top-left cells layer properly */
+        thead th:first-child,
+        thead th:nth-child(2) {
+            z-index: 4; /* highest: top + left corner cells */
         }
 
         .button-container {
