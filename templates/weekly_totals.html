@@ -93,17 +93,19 @@
     <div class="scroll-wrapper">
         <table>
             <thead>
+                <!-- First header row: descriptive column headers -->
                 <tr>
                     <th colspan="2"></th>
                     {% for team in users %}
                         <th>{{ team }} {{ years[-1] }}</th>
                     {% endfor %}
                 </tr>
+                <!-- Second header row: "Week #" and "Date" titles -->
                 <tr>
                     <th>Week #</th>
                     <th>Date</th>
                     {% for team in users %}
-                        <th>Amount</th>
+                        <th></th>
                     {% endfor %}
                 </tr>
             </thead>
