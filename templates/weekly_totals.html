@@ -3,6 +3,10 @@
 <head>
     <title>Weekly Totals Summary</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -29,9 +33,9 @@
 
         table {
             border-collapse: collapse;
+            table-layout: fixed;
             width: max-content;
             min-width: 100%;
-            table-layout: fixed;
         }
 
         th, td {
@@ -39,36 +43,48 @@
             padding: 8px 12px;
             text-align: right;
             white-space: nowrap;
+            background-color: white;
         }
 
-        /* Sticky top row headers */
+        col.col-week {
+            width: 120px;
+        }
+
+        col.col-date {
+            width: 180px;
+        }
+
         thead th {
             position: sticky;
             top: 0;
             background-color: #512888;
             color: white;
-            z-index: 10;
+            z-index: 2;
             text-align: center;
         }
 
-        /* Sticky Week # column */
+        /* Left sticky columns: WEEK and DATE */
         td:first-child, th:first-child {
             position: sticky;
             left: 0;
-            min-width: 100px;
-            background-color: #ffffff;
-            z-index: 11;
+            background-color: #512888;
+            color: white;
+            z-index: 3;
             text-align: center;
         }
 
-        /* Sticky Date column */
         td:nth-child(2), th:nth-child(2) {
             position: sticky;
-            left: 100px;
-            min-width: 160px;
-            background-color: #ffffff;
-            z-index: 11;
+            left: 120px;
+            background-color: #512888;
+            color: white;
+            z-index: 3;
             text-align: center;
+        }
+
+        /* Top-left cells highest z-index */
+        thead th:first-child, thead th:nth-child(2) {
+            z-index: 4;
         }
 
         .button-container {
@@ -83,10 +99,24 @@
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
+            margin-right: 10px;
         }
 
         .back-button:hover {
             background-color: #6a3ab2;
+        }
+
+        .download-button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .download-button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
@@ -95,6 +125,13 @@
 
     <div class="scroll-wrapper">
         <table>
+            <colgroup>
+                <col class="col-week">
+                <col class="col-date">
+                {% for team in users %}
+                    <col>
+                {% endfor %}
+            </colgroup>
             <thead>
                 <tr>
                     <th>Week #</th>
@@ -129,7 +166,7 @@
 
     <div class="button-container">
         <a href="{{ url_for('admin_dashboard') }}" class="back-button">← Back to Dashboard</a>
-        <a href="{{ url_for('download_weekly_totals') }}" class="back-button" style="background-color: #28a745; margin-left: 10px;">⬇ Download Excel</a>
+        <a href="{{ url_for('download_weekly_totals') }}" class="download-button">Download Excel</a>
     </div>
 </body>
 </html>
