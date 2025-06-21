@@ -41,32 +41,35 @@
             white-space: nowrap;
         }
 
+        /* Sticky top header row */
         thead th {
             position: sticky;
             top: 0;
             background-color: #512888;
             color: white;
-            z-index: 20;
+            z-index: 30;
             text-align: center;
         }
 
+        /* Sticky left column: Week # */
         td:first-child, th:first-child {
             position: sticky;
             left: 0;
             min-width: 100px;
             background-color: #512888;
             color: white;
-            z-index: 30;
+            z-index: 20;
             text-align: center;
         }
 
+        /* Sticky left column: Date */
         td:nth-child(2), th:nth-child(2) {
             position: sticky;
             left: 100px;
             min-width: 160px;
             background-color: #512888;
             color: white;
-            z-index: 30;
+            z-index: 20;
             text-align: center;
         }
 
