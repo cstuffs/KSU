@@ -831,15 +831,24 @@ def edit_menu():
         MenuGroup.query.delete()
         db.session.commit()
 
-        group_names = [key.split('[')[1].split(']')[0] for key in form.keys() if key.startswith("group_names[")]
-        group_names = list(OrderedDict.fromkeys(group_names))
+        # Get group rename mapping
+        group_renames = form.to_dict(flat=False)
+        rename_map = {}
+        for key in form:
+            if key.startswith("group_rename["):
+                original_name = key.split("group_rename[")[1].split("]")[0]
+                new_name = form[key].strip()
+                if new_name:
+                    rename_map[original_name] = new_name
 
-        for group in group_names:
-            group_obj = MenuGroup(name=group)
+        # Process each renamed group
+        group_names = [name for name in rename_map.values()]
+        for group_key, group_name in rename_map.items():
+            group_obj = MenuGroup(name=group_name)
             db.session.add(group_obj)
             db.session.flush()
 
-            item_names = form.getlist(f'group_names[{group}][item_names][]')
+            item_names = form.getlist(f'group_names[{group_key}][item_names][]')
             for item_name in item_names:
                 item_name = item_name.strip()
                 if not item_name:
@@ -847,6 +856,7 @@ def edit_menu():
 
                 options = form.getlist(f'options[{item_name}][]')
                 prices = form.getlist(f'prices[{item_name}][]')
+
                 if not options or not prices or len(options) != len(prices):
                     continue
 
