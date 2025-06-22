@@ -888,35 +888,46 @@ def edit_users():
         team_names = request.form.getlist('team_names[]')
         members_list = request.form.getlist('members[]')
 
+        # ✅ Keep track of team names submitted in the form
+        updated_team_names = set()
+
         for team_name, members_raw in zip(team_names, members_list):
             team_name = team_name.strip()
             if not team_name:
                 continue
 
-            # Find or create the team
+            updated_team_names.add(team_name)
+
+            # ✅ Find or create the team
             team = Team.query.filter_by(name=team_name).first()
             if not team:
                 team = Team(name=team_name, budget=100.0)
                 db.session.add(team)
                 db.session.flush()
 
-            # Step 1: Deactivate all users currently on this team
+            # ✅ Deactivate all current users on this team
             for existing_user in User.query.filter_by(team_id=team.id).all():
                 existing_user.is_enabled = False
 
-            # Step 2: Reactivate listed users, or add them if new
+            # ✅ Reactivate or create listed users
             members = [m.strip() for m in members_raw.splitlines() if m.strip()]
             for member_name in members:
                 existing = User.query.filter_by(name=member_name, team_id=team.id).first()
                 if existing:
-                    existing.is_enabled = True  # Reactivate
+                    existing.is_enabled = True
                 else:
-                    db.session.add(User(name=member_name, team_id=team.id, is_enabled=True))  # Create new
+                    db.session.add(User(name=member_name, team_id=team.id, is_enabled=True))
+
+        # ✅ Delete any teams not included in the current form submission
+        all_teams = Team.query.all()
+        for team in all_teams:
+            if team.name not in updated_team_names:
+                db.session.delete(team)  # ✅ Triggers team deletion; users' team_id will become NULL
 
         db.session.commit()
         return redirect(url_for('admin_dashboard'))
 
-    # GET: Render form with existing users by team
+    # GET: Load current user assignments for display
     teams = Team.query.order_by(Team.name).all()
     users_by_team = OrderedDict()
     for team in teams:
@@ -924,16 +935,17 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
-@app.route('/patch_is_enabled')
-def patch_is_enabled():
+@app.route('/patch_team_fk')
+def patch_team_fk():
     try:
-        db.session.execute(text('ALTER TABLE "user" ADD COLUMN is_enabled BOOLEAN DEFAULT TRUE;'))
+        db.session.execute(text('ALTER TABLE "user" ALTER COLUMN team_id DROP NOT NULL;'))
+        db.session.execute(text('ALTER TABLE "user" DROP CONSTRAINT user_team_id_fkey;'))
+        db.session.execute(text('ALTER TABLE "user" ADD CONSTRAINT user_team_id_fkey FOREIGN KEY (team_id) REFERENCES team(id) ON DELETE SET NULL;'))
         db.session.commit()
-        return "✅ 'is_enabled' column added successfully."
+        return "✅ Foreign key patched successfully!"
     except Exception as e:
         db.session.rollback()
-        return f"❌ Failed to patch database: {str(e)}", 500
-
+        return f"❌ Failed to patch: {str(e)}"
 
 # === Run the App ===
 if __name__ == '__main__':

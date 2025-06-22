@@ -6,13 +6,13 @@ class Team(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
     budget = db.Column(db.Float, default=100.0)
     remaining_budget = db.Column(db.Float, default=100.0)
-    members = db.relationship('User', backref='team', lazy=True)
+    members = db.relationship('User', backref='team', lazy=True, passive_deletes=True)
     orders = db.relationship('Order', backref='team', lazy=True)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id', ondelete='SET NULL'), nullable=True)
     is_enabled = db.Column(db.Boolean, default=True)  # ✅ Soft-delete flag
     orders = db.relationship('Order', backref='user', lazy=True)
 
