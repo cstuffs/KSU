@@ -54,7 +54,10 @@
             box-sizing: border-box;
         }
         input.item-name-input {
-            min-width: 600px;
+            min-width: 500px;
+        }
+        input.option-name-input {
+            min-width: 300px;
         }
         button {
             background-color: #dddddd;
@@ -104,7 +107,7 @@
                             <input type="text" name="item_names[]" class="item-name-input" value="{{ item_name }}" required oninput="syncFieldNames(this)">
                         </td>
                         {% endif %}
-                        <td><input type="text" name="options[{{ item_name }}][]" value="{{ opt.name }}" required></td>
+                        <td><input type="text" class="option-name-input" name="options[{{ item_name }}][]" value="{{ opt.name }}" required></td>
                         <td><input type="number" name="prices[{{ item_name }}][]" value="{{ opt.price }}" step="0.01" required></td>
                         <td><button type="button" onclick="removeRow(this)">✖</button></td>
                     </tr>
@@ -172,7 +175,7 @@ function addOption(button, itemName) {
     const newRow = document.createElement('tr');
     newRow.innerHTML = `
         <td></td>
-        <td><input type="text" name="options[${itemName}][]" placeholder="Option" required></td>
+        <td><input type="text" class="option-name-input" name="options[${itemName}][]" placeholder="Option" required></td>
         <td><input type="number" name="prices[${itemName}][]" placeholder="Price" step="0.01" required></td>
         <td><button type="button" onclick="removeRow(this)">✖</button></td>
     `;
