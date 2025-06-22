@@ -53,6 +53,9 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+        input.item-name-input {
+            min-width: 600px;
+        }
         button {
             background-color: #dddddd;
             color: #333;
@@ -80,7 +83,7 @@
 <div class="content">
 <form method="POST">
     {% for group_name, items in grouped_menu.items() %}
-    <details open data-original-group="{{ group_name }}">
+    <details data-original-group="{{ group_name }}">
         <summary>
             <input type="text" name="group_rename[{{ group_name }}]" value="{{ group_name }}" oninput="updateGroupName(this)">
             <button type="button" onclick="deleteGroup(this)">Delete Group</button>
