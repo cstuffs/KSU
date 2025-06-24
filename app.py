@@ -786,6 +786,13 @@ def all_orders():
 
     return render_template("all_orders.html", orders=all_orders)
 
+@app.route('/admin/inventory')
+@login_required
+def view_inventory():
+    if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
+        return "Access Denied", 403
+    return render_template("inventory.html") 
+
 @app.route('/admin/budgets', methods=['GET', 'POST'])
 @login_required
 def manage_budgets():
@@ -945,17 +952,18 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
-@app.route('/patch_team_fk')
-def patch_team_fk():
-    try:
-        db.session.execute(text('ALTER TABLE "user" ALTER COLUMN team_id DROP NOT NULL;'))
-        db.session.execute(text('ALTER TABLE "user" DROP CONSTRAINT user_team_id_fkey;'))
-        db.session.execute(text('ALTER TABLE "user" ADD CONSTRAINT user_team_id_fkey FOREIGN KEY (team_id) REFERENCES team(id) ON DELETE SET NULL;'))
-        db.session.commit()
-        return "✅ Foreign key patched successfully!"
-    except Exception as e:
-        db.session.rollback()
-        return f"❌ Failed to patch: {str(e)}"
+@app.route('/admin/edit_inventory', methods=['GET', 'POST'])
+@login_required
+def edit_inventory():
+    if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
+        return "Access Denied", 403
+
+    if request.method == 'POST':
+        # Handle submitted inventory form data here
+        # Example: request.form.get('item_name')
+        pass
+
+    return render_template("edit_inventory.html")
 
 # === Run the App ===
 if __name__ == '__main__':

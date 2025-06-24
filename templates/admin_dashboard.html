@@ -157,12 +157,14 @@
     <p class="section-title">Tracking:</p>
     <a href="{{ url_for('weekly_totals') }}" class="dashboard-button">Weekly Totals</a>
     <a href="{{ url_for('all_orders') }}" class="dashboard-button">All Orders</a>
+    <a href="{{ url_for('view_inventory') }}" class="dashboard-button">Inventory</a>
 
     {% if session.member_name == 'Scott Trausch' %}
         <p class="section-title">Edits:</p>
         <a href="{{ url_for('manage_budgets') }}" class="action-button">Edit Team Budgets</a>
         <a href="{{ url_for('edit_menu') }}" class="action-button">Edit Menu Items</a>
         <a href="{{ url_for('edit_users') }}" class="action-button">Edit Users and Sports</a>
+        <a href="{{ url_for('edit_inventory') }}" class="action-button">Edit Inventory</a>
     {% endif %}
 
 </div>
