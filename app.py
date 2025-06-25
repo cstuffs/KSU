@@ -1011,6 +1011,22 @@ def one_time_add_position_columns():
         import traceback
         return f"<pre>❌ Error:\n{traceback.format_exc()}</pre>", 500
 
+@app.route('/admin/patch_missing_positions')
+@login_required
+def patch_missing_positions():
+    if session.get('member_name') != "Scott Trausch":
+        return "Access Denied", 403
+
+    try:
+        with db.engine.begin() as conn:
+            conn.execute(text("ALTER TABLE menu_group ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
+        return "✅ Patch successful: position columns added."
+    except Exception as e:
+        import traceback
+        return f"<pre>❌ Patch failed:\n{traceback.format_exc()}</pre>", 500
+    
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
