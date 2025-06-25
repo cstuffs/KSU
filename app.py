@@ -1000,6 +1000,21 @@ def edit_inventory():
         import traceback
         return f"<pre>{traceback.format_exc()}</pre>", 500
 
+from sqlalchemy.exc import ProgrammingError
+
+@app.before_first_request
+def patch_columns_if_needed():
+    with db.engine.begin() as conn:
+        try:
+            conn.execute(text("ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;"))
+        except ProgrammingError as e:
+            print("⚠️ Could not add 'position' column to menu_option:", e)
+
+        try:
+            conn.execute(text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS is_enabled BOOLEAN DEFAULT TRUE;"))
+        except ProgrammingError as e:
+            print("⚠️ Could not add 'is_enabled' column to user:", e)
+
 # === Run the App ===
 if __name__ == '__main__':
     with app.app_context():
