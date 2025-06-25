@@ -1002,7 +1002,7 @@ def edit_inventory():
 
 from sqlalchemy.exc import ProgrammingError
 
-@app.before_first_request
+@app.before_serving
 def patch_columns_if_needed():
     with db.engine.begin() as conn:
         try:
