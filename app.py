@@ -1033,12 +1033,13 @@ def run_migration_once():
 
 @app.before_first_request
 def ensure_position_column():
+    # === One-time migration to add 'position' column if missing ===
     with db.engine.begin() as conn:
         try:
             conn.execute(db.text("ALTER TABLE menu_item ADD COLUMN position INTEGER DEFAULT 0"))
-            print("✅ Added position column to menu_item")
+            print("✅ Added 'position' column to menu_item")
         except Exception as e:
-            print(f"⚠️ Position column already exists or failed: {e}")
+            print(f"⚠️ Could not add 'position' column: {e}")
 
 # === Run the App ===
 if __name__ == '__main__':
