@@ -1023,6 +1023,12 @@ def run_migration_once():
         else:
             results.append("⚠️ reorder_point already exists")
 
+        if "position" not in columns:
+            conn.execute(db.text("ALTER TABLE menu_item ADD COLUMN position INTEGER DEFAULT 0"))
+            results.append("✅ Added position column")
+        else:
+            results.append("⚠️ position already exists")
+
     return "<br>".join(results)
 
 # === Run the App ===
