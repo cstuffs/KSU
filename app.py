@@ -959,11 +959,33 @@ def edit_inventory():
         return "Access Denied", 403
 
     if request.method == 'POST':
-        # Handle submitted inventory form data here
-        # Example: request.form.get('item_name')
-        pass
+        for key in request.form:
+            if key.startswith("case_size_"):
+                item_id = int(key.split("_")[2])
+                item = MenuItem.query.get(item_id)
+                if item:
+                    try:
+                        item.case_size = int(request.form[key])
+                    except ValueError:
+                        pass
+            elif key.startswith("reorder_point_"):
+                item_id = int(key.split("_")[2])
+                item = MenuItem.query.get(item_id)
+                if item:
+                    try:
+                        item.reorder_point = int(request.form[key])
+                    except ValueError:
+                        pass
+        db.session.commit()
+        return redirect(url_for('edit_inventory'))
 
-    return render_template("edit_inventory.html")
+    # Grouped menu items
+    grouped_menu = OrderedDict()
+    groups = MenuGroup.query.order_by(MenuGroup.id).all()
+    for group in groups:
+        grouped_menu[group.name] = group.items
+
+    return render_template("edit_inventory.html", grouped_menu=grouped_menu)
 
 # === Run the App ===
 if __name__ == '__main__':

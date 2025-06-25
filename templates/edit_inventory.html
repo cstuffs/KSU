@@ -2,13 +2,82 @@
 <html>
 <head>
     <title>Edit Inventory</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        h2 {
+            margin-top: 40px;
+            color: #512888;
+        }
+
+        input[type="number"] {
+            width: 80px;
+        }
+
+        .submit-btn, .back-btn {
+            margin: 10px 10px 30px 0;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .submit-btn {
+            background-color: #512888;
+            color: white;
+        }
+
+        .back-btn {
+            background-color: #ccc;
+            color: black;
+        }
+    </style>
 </head>
 <body>
-    <h1>✏️ Edit Inventory</h1>
+    <h1>Edit Inventory Settings</h1>
+
+    <!-- ✅ Back to Dashboard Button -->
+    <a href="{{ url_for('admin_dashboard') }}" class="back-btn">← Back to Dashboard</a>
+
     <form method="POST">
-        <label>Item Name: <input type="text" name="item_name"></label><br>
-        <label>Quantity: <input type="number" name="quantity"></label><br>
-        <button type="submit">Save</button>
+        {% for group_name, items in grouped_menu.items() %}
+            <h2>{{ group_name }}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>1 Case = # Units</th>
+                        <th>Reorder Point (# Units)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>
+                                <input type="number" name="case_size_{{ item.id }}" value="{{ item.case_size or '' }}" min="1">
+                            </td>
+                            <td>
+                                <input type="number" name="reorder_point_{{ item.id }}" value="{{ item.reorder_point or '' }}" min="0">
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+        <button class="submit-btn" type="submit">Save Changes</button>
     </form>
 </body>
 </html>
