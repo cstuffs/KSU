@@ -5,6 +5,7 @@ from collections import OrderedDict
 from io import BytesIO
 from openpyxl import Workbook
 from sqlalchemy import text 
+from sqlalchemy.orm import joinedload
 from extensions import db
 from models import db, Team, User, Order, OrderItem
 from models import MenuGroup, MenuItem, MenuOption
@@ -952,6 +953,8 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
+from sqlalchemy.orm import joinedload
+
 @app.route('/admin/edit_inventory', methods=['GET', 'POST'])
 @login_required
 def edit_inventory():
@@ -979,15 +982,16 @@ def edit_inventory():
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    # ✅ Prepare grouped_menu for the template
+    # ✅ Consistent ordering
     grouped_menu = OrderedDict()
-    groups = MenuGroup.query.order_by(MenuGroup.id).all()
+    groups = MenuGroup.query.order_by(MenuGroup.name).options(joinedload(MenuGroup.items)).all()
 
     for group in groups:
         items_data = []
-        for item in group.items:
-            options = [{"name": opt.name} for opt in item.options]
-            item.options_data = options  # attach options manually for template
+        items = sorted(group.items, key=lambda x: x.name)
+        for item in items:
+            options = sorted([{"name": opt.name} for opt in item.options], key=lambda x: x["name"])
+            item.options_data = options
             items_data.append(item)
         grouped_menu[group.name] = items_data
 
