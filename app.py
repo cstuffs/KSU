@@ -958,6 +958,46 @@ def edit_users():
 def edit_inventory():
     if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
         return "Access Denied", 403
+
+    if request.method == 'POST':
+        form_data = request.form.to_dict()
+
+        for item in MenuItem.query.all():
+            case_key = f"case_size_{item.id}"
+            reorder_key = f"reorder_point_{item.id}"
+
+            if case_key in form_data:
+                try:
+                    item.case_size = int(form_data[case_key])
+                except ValueError:
+                    item.case_size = None
+
+            if reorder_key in form_data:
+                try:
+                    item.reorder_point = int(form_data[reorder_key])
+                except ValueError:
+                    item.reorder_point = None
+
+        db.session.commit()
+        return redirect(url_for('edit_inventory'))
+
+    # GET request
+    grouped_menu = OrderedDict()
+    groups = MenuGroup.query.order_by(MenuGroup.id).all()
+    for group in groups:
+        group_items = []
+        for item in group.items:
+            options_data = [{"name": opt.name} for opt in item.options]
+            group_items.append({
+                "id": item.id,
+                "name": item.name,
+                "options_data": options_data,
+                "case_size": item.case_size,
+                "reorder_point": item.reorder_point
+            })
+        grouped_menu[group.name] = group_items
+
+    return render_template("edit_inventory.html", grouped_menu=grouped_menu)
     
 # === Run the App ===
 if __name__ == '__main__':
