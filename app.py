@@ -1006,13 +1006,20 @@ def run_column_patch():
         return "Access Denied", 403
 
     messages = []
-    with db.engine.connect() as conn:
-        for column_name in ["position", "case_size", "reorder_point"]:
-            try:
-                conn.execute(db.text(f"ALTER TABLE menu_item ADD COLUMN {column_name} INTEGER DEFAULT 0"))
-                messages.append(f"✅ Added column: {column_name}")
-            except Exception as e:
-                messages.append(f"⚠️ {column_name} may already exist: {str(e)}")
+    columns_to_add = {
+        "position": "INTEGER DEFAULT 0",
+        "case_size": "INTEGER DEFAULT 0",
+        "reorder_point": "INTEGER DEFAULT 0"
+    }
+
+    for column, definition in columns_to_add.items():
+        try:
+            with db.engine.begin() as conn:
+                conn.execute(db.text(f"ALTER TABLE menu_item ADD COLUMN {column} {definition}"))
+            messages.append(f"✅ Added column: {column}")
+        except Exception as e:
+            messages.append(f"⚠️ {column} may already exist: {str(e)}")
+
     return "<br>".join(messages)
 
 # === Run the App ===
