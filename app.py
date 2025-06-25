@@ -999,18 +999,21 @@ def edit_inventory():
 
     return render_template("edit_inventory.html", grouped_menu=grouped_menu)
 
-@app.route('/force_add_position_column')
+@app.route('/admin/run_column_patch')
 @login_required
-def force_add_position_column():
+def run_column_patch():
     if session.get('member_name') != "Scott Trausch":
         return "Access Denied", 403
 
+    messages = []
     with db.engine.connect() as conn:
-        try:
-            conn.execute(db.text("ALTER TABLE menu_item ADD COLUMN position INTEGER DEFAULT 0"))
-            return "✅ Successfully added 'position' column to menu_item"
-        except Exception as e:
-            return f"⚠️ Failed to add 'position' column (maybe already exists?): {e}"
+        for column_name in ["position", "case_size", "reorder_point"]:
+            try:
+                conn.execute(db.text(f"ALTER TABLE menu_item ADD COLUMN {column_name} INTEGER DEFAULT 0"))
+                messages.append(f"✅ Added column: {column_name}")
+            except Exception as e:
+                messages.append(f"⚠️ {column_name} may already exist: {str(e)}")
+    return "<br>".join(messages)
 
 # === Run the App ===
 if __name__ == '__main__':
