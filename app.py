@@ -1031,6 +1031,15 @@ def run_migration_once():
 
     return "<br>".join(results)
 
+@app.before_first_request
+def ensure_position_column():
+    with db.engine.begin() as conn:
+        try:
+            conn.execute(db.text("ALTER TABLE menu_item ADD COLUMN position INTEGER DEFAULT 0"))
+            print("✅ Added position column to menu_item")
+        except Exception as e:
+            print(f"⚠️ Position column already exists or failed: {e}")
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
