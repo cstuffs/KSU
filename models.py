@@ -45,12 +45,6 @@ class MenuGroup(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
     items = db.relationship('MenuItem', backref='group', cascade="all, delete-orphan")
 
-class MenuItem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    group_id = db.Column(db.Integer, db.ForeignKey('menu_group.id'), nullable=False)
-    options = db.relationship('MenuOption', backref='item', cascade="all, delete-orphan")
-
 class MenuOption(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
