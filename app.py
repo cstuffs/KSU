@@ -956,7 +956,7 @@ def edit_users():
 @app.route('/admin/edit_inventory', methods=['GET', 'POST'])
 @login_required
 def edit_inventory():
-    if not (session.get('admin_as_football') or session.get('member_name') != "Scott Trausch"):
+    if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
         return "Access Denied", 403
 
     try:
