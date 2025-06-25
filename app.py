@@ -998,7 +998,33 @@ def edit_inventory():
         grouped_menu[group.name] = group_items
 
     return render_template("edit_inventory.html", grouped_menu=grouped_menu)
-    
+
+@app.route('/run_migration_once')
+@login_required
+def run_migration_once():
+    if session.get('member_name') != "Scott Trausch":
+        return "Access Denied", 403
+
+    with db.engine.connect() as conn:
+        inspector = db.inspect(conn)
+        columns = [col["name"] for col in inspector.get_columns("menu_item")]
+
+        results = []
+
+        if "case_size" not in columns:
+            conn.execute(db.text("ALTER TABLE menu_item ADD COLUMN case_size INTEGER DEFAULT 1"))
+            results.append("✅ Added case_size column")
+        else:
+            results.append("⚠️ case_size already exists")
+
+        if "reorder_point" not in columns:
+            conn.execute(db.text("ALTER TABLE menu_item ADD COLUMN reorder_point INTEGER DEFAULT 0"))
+            results.append("✅ Added reorder_point column")
+        else:
+            results.append("⚠️ reorder_point already exists")
+
+    return "<br>".join(results)
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
