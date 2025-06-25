@@ -987,6 +987,20 @@ def edit_inventory():
 
     return render_template("edit_inventory.html", grouped_menu=grouped_menu)
 
+@app.route('/admin/one_time_add_inventory_columns')
+@login_required
+def one_time_add_inventory_columns():
+    if session.get('member_name') != "Scott Trausch":
+        return "Access Denied", 403
+
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS case_size INTEGER DEFAULT 1"))
+            conn.execute(text("ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS reorder_point INTEGER DEFAULT 0"))
+        return "✅ Columns 'case_size' and 'reorder_point' added successfully."
+    except Exception as e:
+        return f"❌ Error: {e}", 500
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
