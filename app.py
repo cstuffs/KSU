@@ -979,21 +979,19 @@ def edit_inventory():
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    # Flatten all menu items + options
-    items_data = []
-    items = MenuItem.query.join(MenuGroup).order_by(MenuGroup.name, MenuItem.name).all()
-    for item in items:
-        for option in item.options:
-            items_data.append({
-                "group_name": item.group.name,
-                "item_id": item.id,
-                "item_name": item.name,
-                "option_name": option.name,
-                "case_size": item.case_size,
-                "reorder_point": item.reorder_point
-            })
+    # ✅ Prepare grouped_menu for the template
+    grouped_menu = OrderedDict()
+    groups = MenuGroup.query.order_by(MenuGroup.id).all()
 
-    return render_template("edit_inventory.html", items_data=items_data)
+    for group in groups:
+        items_data = []
+        for item in group.items:
+            options = [{"name": opt.name} for opt in item.options]
+            item.options_data = options  # attach options manually for template
+            items_data.append(item)
+        grouped_menu[group.name] = items_data
+
+    return render_template("edit_inventory.html", grouped_menu=grouped_menu)
 
 # === Run the App ===
 if __name__ == '__main__':
