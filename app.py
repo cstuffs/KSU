@@ -995,11 +995,16 @@ def one_time_add_inventory_columns():
 
     try:
         with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS case_size INTEGER DEFAULT 1"))
-            conn.execute(text("ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS reorder_point INTEGER DEFAULT 0"))
-        return "✅ Columns 'case_size' and 'reorder_point' added successfully."
+            result_1 = conn.execute(text("""
+                ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS case_size INTEGER DEFAULT 1
+            """))
+            result_2 = conn.execute(text("""
+                ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS reorder_point INTEGER DEFAULT 0
+            """))
+        return "✅ Columns added successfully."
     except Exception as e:
-        return f"❌ Error: {e}", 500
+        import traceback
+        return f"<pre>❌ Error:\n{traceback.format_exc()}</pre>", 500
 
 # === Run the App ===
 if __name__ == '__main__':
