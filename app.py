@@ -953,8 +953,6 @@ def edit_users():
 
     return render_template("edit_users.html", users=users_by_team)
 
-from sqlalchemy.orm import joinedload
-
 @app.route('/admin/edit_inventory', methods=['GET', 'POST'])
 @login_required
 def edit_inventory():
@@ -982,15 +980,15 @@ def edit_inventory():
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    # ✅ Consistent ordering
     grouped_menu = OrderedDict()
-    groups = MenuGroup.query.order_by(MenuGroup.name).options(joinedload(MenuGroup.items)).all()
+    groups = MenuGroup.query.options(
+        joinedload(MenuGroup.items).joinedload(MenuItem.options)
+    ).order_by(MenuGroup.position).all()
 
     for group in groups:
         items_data = []
-        items = sorted(group.items, key=lambda x: x.name)
-        for item in items:
-            options = sorted([{"name": opt.name} for opt in item.options], key=lambda x: x["name"])
+        for item in sorted(group.items, key=lambda i: i.position):
+            options = sorted(item.options, key=lambda o: o.position)
             item.options_data = options
             items_data.append(item)
         grouped_menu[group.name] = items_data

@@ -40,24 +40,28 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False, default=0.0)
 
-class MenuOption(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
-
 class MenuGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
-    items = db.relationship('MenuItem', back_populates='group', cascade="all, delete-orphan")  # ✅
+    position = db.Column(db.Integer, nullable=False, default=0)
+    items = db.relationship('MenuItem', back_populates='group', cascade="all, delete-orphan", order_by='MenuItem.position')
 
 class MenuItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('menu_group.id'))
+    position = db.Column(db.Integer, nullable=False, default=0)
     case_size = db.Column(db.Integer, default=1)
     reorder_point = db.Column(db.Integer, default=0)
 
-    group = db.relationship('MenuGroup', back_populates='items')  # ✅
-    options = db.relationship('MenuOption', backref='item', cascade='all, delete-orphan')
+    group = db.relationship('MenuGroup', back_populates='items')
+    options = db.relationship('MenuOption', backref='item', cascade='all, delete-orphan', order_by='MenuOption.position')
+
+class MenuOption(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    position = db.Column(db.Integer, nullable=False, default=0)
+    item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
+
 
