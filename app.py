@@ -994,14 +994,14 @@ def one_time_add_inventory_columns():
         return "Access Denied", 403
 
     try:
-        with db.engine.connect() as conn:
-            result_1 = conn.execute(text("""
-                ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS case_size INTEGER DEFAULT 1
+        with db.engine.begin() as conn:
+            conn.execute(text("""
+                ALTER TABLE menu_item ADD COLUMN case_size INTEGER DEFAULT 1
             """))
-            result_2 = conn.execute(text("""
-                ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS reorder_point INTEGER DEFAULT 0
+            conn.execute(text("""
+                ALTER TABLE menu_item ADD COLUMN reorder_point INTEGER DEFAULT 0
             """))
-        return "✅ Columns added successfully."
+        return "✅ Columns 'case_size' and 'reorder_point' added to menu_item table."
     except Exception as e:
         import traceback
         return f"<pre>❌ Error:\n{traceback.format_exc()}</pre>", 500
