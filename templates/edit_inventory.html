@@ -79,7 +79,6 @@
 </head>
 <body>
     <h1>Edit Inventory</h1>
-    <a href="{{ url_for('admin_dashboard') }}" class="back-btn">← Back to Dashboard</a>
 
     <form method="POST">
         {% for group_name, items in grouped_menu.items() %}
@@ -90,7 +89,7 @@
                         <tr>
                             <th>Item</th>
                             <th>Option</th>
-                            <th>Case Size</th>
+                            <th>1 Case Size</th>
                             <th>Reorder Point</th>
                         </tr>
                     </thead>
@@ -114,6 +113,7 @@
             </div>
         {% endfor %}
         <button class="submit-btn" type="submit">Save Changes</button>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-btn">← Back to Dashboard</a>
     </form>
 </body>
 </html>
