@@ -956,44 +956,49 @@ def edit_users():
 @app.route('/admin/edit_inventory', methods=['GET', 'POST'])
 @login_required
 def edit_inventory():
-    if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
+    if not (session.get('admin_as_football') or session.get('member_name') != "Scott Trausch"):
         return "Access Denied", 403
 
-    if request.method == 'POST':
-        for key in request.form:
-            if key.startswith("case_size_"):
-                item_id = int(key.split("_")[2])
-                item = MenuItem.query.get(item_id)
-                if item:
-                    try:
-                        item.case_size = int(request.form[key])
-                    except ValueError:
-                        pass
-            elif key.startswith("reorder_point_"):
-                item_id = int(key.split("_")[2])
-                item = MenuItem.query.get(item_id)
-                if item:
-                    try:
-                        item.reorder_point = int(request.form[key])
-                    except ValueError:
-                        pass
-        db.session.commit()
-        return redirect(url_for('edit_inventory'))
+    try:
+        if request.method == 'POST':
+            for key in request.form:
+                if key.startswith("case_size_"):
+                    item_id = int(key.split("_")[2])
+                    item = MenuItem.query.get(item_id)
+                    if item:
+                        try:
+                            item.case_size = int(request.form[key])
+                        except ValueError:
+                            pass
+                elif key.startswith("reorder_point_"):
+                    item_id = int(key.split("_")[2])
+                    item = MenuItem.query.get(item_id)
+                    if item:
+                        try:
+                            item.reorder_point = int(request.form[key])
+                        except ValueError:
+                            pass
+            db.session.commit()
+            return redirect(url_for('edit_inventory'))
 
-    grouped_menu = OrderedDict()
-    groups = MenuGroup.query.options(
-        joinedload(MenuGroup.items).joinedload(MenuItem.options)
-    ).order_by(MenuGroup.position).all()
+        grouped_menu = OrderedDict()
+        groups = MenuGroup.query.options(
+            joinedload(MenuGroup.items).joinedload(MenuItem.options)
+        ).order_by(MenuGroup.position).all()
 
-    for group in groups:
-        items_data = []
-        for item in sorted(group.items, key=lambda i: i.position):
-            options = sorted(item.options, key=lambda o: o.position)
-            item.options_data = options
-            items_data.append(item)
-        grouped_menu[group.name] = items_data
+        for group in groups:
+            items_data = []
+            for item in sorted(group.items, key=lambda i: i.position):
+                options = sorted(item.options, key=lambda o: o.position)
+                item.options_data = options
+                items_data.append(item)
+            grouped_menu[group.name] = items_data
 
-    return render_template("edit_inventory.html", grouped_menu=grouped_menu)
+        return render_template("edit_inventory.html", grouped_menu=grouped_menu)
+
+    except Exception as e:
+        import traceback
+        return f"<pre>{traceback.format_exc()}</pre>", 500
 
 @app.route('/admin/one_time_add_position_columns')
 @login_required
