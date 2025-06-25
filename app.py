@@ -995,6 +995,22 @@ def edit_inventory():
 
     return render_template("edit_inventory.html", grouped_menu=grouped_menu)
 
+@app.route('/admin/one_time_add_position_columns')
+@login_required
+def one_time_add_position_columns():
+    if session.get('member_name') != "Scott Trausch":
+        return "Access Denied", 403
+
+    try:
+        with db.engine.begin() as conn:
+            conn.execute(text("ALTER TABLE menu_group ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
+        return "✅ Position columns added to menu_group, menu_item, and menu_option."
+    except Exception as e:
+        import traceback
+        return f"<pre>❌ Error:\n{traceback.format_exc()}</pre>", 500
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
