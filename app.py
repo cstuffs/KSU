@@ -1000,17 +1000,11 @@ def edit_inventory():
         import traceback
         return f"<pre>{traceback.format_exc()}</pre>", 500
 
-from sqlalchemy import text
-
-@app.route("/patch_menu_option_position")
-def patch_menu_option_position():
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE menu_option ADD COLUMN position INTEGER DEFAULT 0"))
-        return "✅ Patched: 'position' column added to menu_option."
-    except Exception as e:
-        return f"❌ Error: {e}"
-
 # === Run the App ===
 if __name__ == '__main__':
+    with app.app_context():
+        with db.engine.begin() as conn:
+            conn.execute(text("ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;"))
+            conn.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS is_enabled BOOLEAN DEFAULT TRUE;'))
+    
     app.run(debug=True)
