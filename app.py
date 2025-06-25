@@ -1000,67 +1000,7 @@ def edit_inventory():
         import traceback
         return f"<pre>{traceback.format_exc()}</pre>", 500
 
-@app.route('/admin/one_time_add_position_columns')
-@login_required
-def one_time_add_position_columns():
-    if session.get('member_name') != "Scott Trausch":
-        return "Access Denied", 403
-
-    try:
-        with db.engine.begin() as conn:
-            conn.execute(text("ALTER TABLE menu_group ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-            conn.execute(text("ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-            conn.execute(text("ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-        return "✅ Position columns added to menu_group, menu_item, and menu_option."
-    except Exception as e:
-        import traceback
-        return f"<pre>❌ Error:\n{traceback.format_exc()}</pre>", 500
-
-@app.route('/admin/patch_missing_positions')
-@login_required
-def patch_missing_positions():
-    if session.get('member_name') != "Scott Trausch":
-        return "Access Denied", 403
-
-    try:
-        with db.engine.begin() as conn:
-            conn.execute(text("ALTER TABLE menu_group ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-            conn.execute(text("ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-            conn.execute(text("ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-        return "✅ Patch successful: position columns added."
-    except Exception as e:
-        import traceback
-        return f"<pre>❌ Patch failed:\n{traceback.format_exc()}</pre>", 500
-
-@app.route('/admin/patch_menu_group_position')
-@login_required
-def patch_menu_group_position():
-    if session.get('member_name') != "Scott Trausch":
-        return "Access Denied", 403
-
-    try:
-        with db.engine.begin() as conn:
-            conn.execute(text("ALTER TABLE menu_group ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-        return "✅ Patched: 'position' column added to menu_group."
-    except Exception as e:
-        import traceback
-        return f"<pre>❌ Patch failed:\n{traceback.format_exc()}</pre>", 500
-
-@app.route('/admin/patch_menu_positions')
-@login_required
-def patch_menu_positions():
-    if session.get('member_name') != "Scott Trausch":
-        return "Access Denied", 403
-
-    try:
-        with db.engine.begin() as conn:
-            conn.execute(text("ALTER TABLE menu_group ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-            conn.execute(text("ALTER TABLE menu_item ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-            conn.execute(text("ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0"))
-        return "✅ All position columns patched successfully."
-    except Exception as e:
-        import traceback
-        return f"<pre>❌ Patch failed:\n{traceback.format_exc()}</pre>", 500
+from sqlalchemy import text
 
 @app.route("/patch_menu_option_position")
 def patch_menu_option_position():
