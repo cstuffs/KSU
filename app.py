@@ -13,8 +13,6 @@ from datetime import datetime, timedelta
 import json
 import os
 
-db_patch_ran = False
-
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'
 
@@ -960,73 +958,7 @@ def edit_users():
 def edit_inventory():
     if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
         return "Access Denied", 403
-
-    try:
-        if request.method == 'POST':
-            for key in request.form:
-                if key.startswith("case_size_"):
-                    item_id = int(key.split("_")[2])
-                    item = MenuItem.query.get(item_id)
-                    if item:
-                        try:
-                            item.case_size = int(request.form[key])
-                        except ValueError:
-                            pass
-                elif key.startswith("reorder_point_"):
-                    item_id = int(key.split("_")[2])
-                    item = MenuItem.query.get(item_id)
-                    if item:
-                        try:
-                            item.reorder_point = int(request.form[key])
-                        except ValueError:
-                            pass
-            db.session.commit()
-            return redirect(url_for('edit_inventory'))
-
-        grouped_menu = OrderedDict()
-        groups = MenuGroup.query.options(
-            joinedload(MenuGroup.items).joinedload(MenuItem.options)
-        ).order_by(MenuGroup.position).all()
-
-        for group in groups:
-            items_data = []
-            for item in sorted(group.items, key=lambda i: i.position):
-                options = sorted(item.options, key=lambda o: o.position)
-                item.options_data = options
-                items_data.append(item)
-            grouped_menu[group.name] = items_data
-
-        return render_template("edit_inventory.html", grouped_menu=grouped_menu)
-
-    except Exception as e:
-        import traceback
-        return f"<pre>{traceback.format_exc()}</pre>", 500
-
-from sqlalchemy import text
-
-@app.before_request
-def patch_columns_if_needed():
-    global db_patch_ran
-    if db_patch_ran:
-        return
-
-    with db.engine.begin() as conn:
-        # Patch MenuOption table
-        conn.execute(text(
-            "ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;"
-        ))
-        # Patch User table
-        conn.execute(text(
-            'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS is_enabled BOOLEAN DEFAULT TRUE;'
-        ))
-
-    db_patch_ran = True
-
+    
 # === Run the App ===
 if __name__ == '__main__':
-    with app.app_context():
-        with db.engine.begin() as conn:
-            conn.execute(text("ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;"))
-            conn.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS is_enabled BOOLEAN DEFAULT TRUE;'))
-    
     app.run(debug=True)
