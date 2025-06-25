@@ -13,6 +13,8 @@ from datetime import datetime, timedelta
 import json
 import os
 
+db_patch_ran = False
+
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'
 
@@ -1000,20 +1002,25 @@ def edit_inventory():
         import traceback
         return f"<pre>{traceback.format_exc()}</pre>", 500
 
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy import text
 
-@app.before_serving
+@app.before_request
 def patch_columns_if_needed():
-    with db.engine.begin() as conn:
-        try:
-            conn.execute(text("ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;"))
-        except ProgrammingError as e:
-            print("⚠️ Could not add 'position' column to menu_option:", e)
+    global db_patch_ran
+    if db_patch_ran:
+        return
 
-        try:
-            conn.execute(text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS is_enabled BOOLEAN DEFAULT TRUE;"))
-        except ProgrammingError as e:
-            print("⚠️ Could not add 'is_enabled' column to user:", e)
+    with db.engine.begin() as conn:
+        # Patch MenuOption table
+        conn.execute(text(
+            "ALTER TABLE menu_option ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 0;"
+        ))
+        # Patch User table
+        conn.execute(text(
+            'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS is_enabled BOOLEAN DEFAULT TRUE;'
+        ))
+
+    db_patch_ran = True
 
 # === Run the App ===
 if __name__ == '__main__':
