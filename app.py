@@ -1062,6 +1062,15 @@ def patch_menu_positions():
         import traceback
         return f"<pre>❌ Patch failed:\n{traceback.format_exc()}</pre>", 500
 
+@app.route("/patch_menu_option_position")
+def patch_menu_option_position():
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE menu_option ADD COLUMN position INTEGER DEFAULT 0"))
+        return "✅ Patched: 'position' column added to menu_option."
+    except Exception as e:
+        return f"❌ Error: {e}"
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
