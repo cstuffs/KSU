@@ -960,14 +960,16 @@ def edit_inventory():
         for item in MenuItem.query.all():
             case_size = request.form.get(f"case_size_{item.id}")
             reorder_point = request.form.get(f"reorder_point_{item.id}")
-            if case_size is not None:
+
+            # Only update if value is provided
+            if case_size and case_size.isdigit():
                 item.case_size = int(case_size)
-            if reorder_point is not None:
+            if reorder_point and reorder_point.isdigit():
                 item.reorder_point = int(reorder_point)
+
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    # Group items and preserve position order
     groups = MenuGroup.query.order_by(MenuGroup.position).all()
     grouped_menu = {}
     for group in groups:
