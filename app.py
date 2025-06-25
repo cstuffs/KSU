@@ -979,32 +979,21 @@ def edit_inventory():
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    # Grouped menu items
-    grouped_menu = OrderedDict()
-    groups = MenuGroup.query.order_by(MenuGroup.id).all()
-    for group in groups:
-        grouped_menu[group.name] = group.items
+    # Flatten all menu items + options
+    items_data = []
+    items = MenuItem.query.join(MenuGroup).order_by(MenuGroup.name, MenuItem.name).all()
+    for item in items:
+        for option in item.options:
+            items_data.append({
+                "group_name": item.group.name,
+                "item_id": item.id,
+                "item_name": item.name,
+                "option_name": option.name,
+                "case_size": item.case_size,
+                "reorder_point": item.reorder_point
+            })
 
-    return render_template("edit_inventory.html", grouped_menu=grouped_menu)
-
-@app.route('/admin/one_time_add_inventory_columns')
-@login_required
-def one_time_add_inventory_columns():
-    if session.get('member_name') != "Scott Trausch":
-        return "Access Denied", 403
-
-    try:
-        with db.engine.begin() as conn:
-            conn.execute(text("""
-                ALTER TABLE menu_item ADD COLUMN case_size INTEGER DEFAULT 1
-            """))
-            conn.execute(text("""
-                ALTER TABLE menu_item ADD COLUMN reorder_point INTEGER DEFAULT 0
-            """))
-        return "✅ Columns 'case_size' and 'reorder_point' added to menu_item table."
-    except Exception as e:
-        import traceback
-        return f"<pre>❌ Error:\n{traceback.format_exc()}</pre>", 500
+    return render_template("edit_inventory.html", items_data=items_data)
 
 # === Run the App ===
 if __name__ == '__main__':
