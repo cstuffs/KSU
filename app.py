@@ -956,71 +956,27 @@ def edit_users():
 @app.route('/admin/edit_inventory', methods=['GET', 'POST'])
 @login_required
 def edit_inventory():
-    if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
-        return "Access Denied", 403
-
     if request.method == 'POST':
-        form_data = request.form.to_dict()
-
         for item in MenuItem.query.all():
-            case_key = f"case_size_{item.id}"
-            reorder_key = f"reorder_point_{item.id}"
-
-            if case_key in form_data:
-                try:
-                    item.case_size = int(form_data[case_key])
-                except ValueError:
-                    item.case_size = None
-
-            if reorder_key in form_data:
-                try:
-                    item.reorder_point = int(form_data[reorder_key])
-                except ValueError:
-                    item.reorder_point = None
-
+            case_size = request.form.get(f"case_size_{item.id}")
+            reorder_point = request.form.get(f"reorder_point_{item.id}")
+            if case_size is not None:
+                item.case_size = int(case_size)
+            if reorder_point is not None:
+                item.reorder_point = int(reorder_point)
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    # GET request
-    grouped_menu = OrderedDict()
-    groups = MenuGroup.query.order_by(MenuGroup.id).all()
+    # Group items and preserve position order
+    groups = MenuGroup.query.order_by(MenuGroup.position).all()
+    grouped_menu = {}
     for group in groups:
-        group_items = []
-        for item in group.items:
-            options_data = [{"name": opt.name} for opt in item.options]
-            group_items.append({
-                "id": item.id,
-                "name": item.name,
-                "options_data": options_data,
-                "case_size": item.case_size,
-                "reorder_point": item.reorder_point
-            })
-        grouped_menu[group.name] = group_items
+        items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
+        for item in items:
+            item.options_data = MenuOption.query.filter_by(item_id=item.id).all()
+        grouped_menu[group.name] = items
 
-    return render_template("edit_inventory.html", grouped_menu=grouped_menu)
-
-@app.route('/admin/run_column_patch')
-@login_required
-def run_column_patch():
-    if session.get('member_name') != "Scott Trausch":
-        return "Access Denied", 403
-
-    messages = []
-    columns_to_add = {
-        "position": "INTEGER DEFAULT 0",
-        "case_size": "INTEGER DEFAULT 0",
-        "reorder_point": "INTEGER DEFAULT 0"
-    }
-
-    for column, definition in columns_to_add.items():
-        try:
-            with db.engine.begin() as conn:
-                conn.execute(db.text(f"ALTER TABLE menu_item ADD COLUMN {column} {definition}"))
-            messages.append(f"✅ Added column: {column}")
-        except Exception as e:
-            messages.append(f"⚠️ {column} may already exist: {str(e)}")
-
-    return "<br>".join(messages)
+    return render_template('edit_inventory.html', grouped_menu=grouped_menu)
 
 # === Run the App ===
 if __name__ == '__main__':
