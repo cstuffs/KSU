@@ -997,18 +997,15 @@ def edit_inventory():
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
 
-@app.route('/admin/check_positions')
-@login_required
-def check_positions():
-    missing_items = MenuItem.query.filter(MenuItem.position == None).all()
-    missing_options = MenuOption.query.filter(MenuOption.position == None).all()
-    return f"{len(missing_items)} MenuItems missing position<br>{len(missing_options)} MenuOptions missing position"
-
-@app.route('/admin/debug_positions')
-@login_required
-def debug_positions():
-    items = MenuItem.query.order_by(MenuItem.position).all()
-    return "<br>".join([f"{item.name} - position: {item.position}" for item in items])
+@app.route('/add_option_columns')
+def add_option_columns():
+    try:
+        from sqlalchemy import text
+        db.engine.execute(text('ALTER TABLE menu_option ADD COLUMN case_size INTEGER DEFAULT 1'))
+        db.engine.execute(text('ALTER TABLE menu_option ADD COLUMN reorder_point INTEGER DEFAULT 1'))
+        return "✅ Columns 'case_size' and 'reorder_point' added to MenuOption."
+    except Exception as e:
+        return f"❌ Error: {e}"
 
 # === Run the App ===
 if __name__ == '__main__':
