@@ -971,17 +971,22 @@ def edit_inventory():
     if request.method == 'POST':
         options = MenuOption.query.all()
         for option in options:
-            case_size = request.form.get(f"case_size_{option.id}", "").strip()
-            reorder_point = request.form.get(f"reorder_point_{option.id}", "").strip()
+            cs_key = f"case_size_{option.id}"
+            rp_key = f"reorder_point_{option.id}"
 
-            # Set default if blank, else convert
-            option.case_size = int(case_size) if case_size.isdigit() else 1
-            option.reorder_point = int(reorder_point) if reorder_point.isdigit() else 1
+            case_size = request.form.get(cs_key, "").strip()
+            reorder_point = request.form.get(rp_key, "").strip()
+
+            # ✅ Save only if valid
+            if case_size.isdigit():
+                option.case_size = int(case_size)
+            if reorder_point.isdigit():
+                option.reorder_point = int(reorder_point)
 
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    # GET: Load grouped menu
+    # GET view
     grouped_menu = OrderedDict()
     groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
