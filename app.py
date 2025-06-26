@@ -969,15 +969,15 @@ def edit_users():
 @login_required
 def edit_inventory():
     if request.method == 'POST':
-        items = MenuItem.query.order_by(MenuItem.position).all()
-        for item in items:
-            case_size = request.form.get(f"case_size_{item.id}", "").strip()
-            reorder_point = request.form.get(f"reorder_point_{item.id}", "").strip()
+        options = MenuOption.query.all()
+        for option in options:
+            case_size = request.form.get(f"case_size_{option.id}", "").strip()
+            reorder_point = request.form.get(f"reorder_point_{option.id}", "").strip()
 
             if case_size.isdigit():
-                item.case_size = int(case_size)
+                option.case_size = int(case_size)
             if reorder_point.isdigit():
-                item.reorder_point = int(reorder_point)
+                option.reorder_point = int(reorder_point)
 
         db.session.commit()
         return redirect(url_for('edit_inventory'))

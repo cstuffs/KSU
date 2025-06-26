@@ -95,20 +95,18 @@
                     </thead>
                     <tbody>
                         {% for item in items %}
+                            {% for option in item.options_data %}
                             <tr>
                                 <td>{{ item.name }}</td>
+                                <td>{{ option.name }}</td>
                                 <td>
-                                    {% for option in item.options_data %}
-                                        {{ option.name }}<br>
-                                    {% endfor %}
+                                    <input type="number" name="case_size_{{ option.id }}" value="{{ option.case_size or '' }}" min="1">
                                 </td>
                                 <td>
-                                    <input type="number" name="case_size_{{ item.id }}" value="{{ item.case_size or '' }}" min="1">
-                                </td>
-                                <td>
-                                    <input type="number" name="reorder_point_{{ item.id }}" value="{{ item.reorder_point or '' }}" min="0">
+                                    <input type="number" name="reorder_point_{{ option.id }}" value="{{ option.reorder_point or '' }}" min="0">
                                 </td>
                             </tr>
+                            {% endfor %}
                         {% endfor %}
                     </tbody>
                 </table>
