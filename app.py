@@ -993,6 +993,13 @@ def edit_inventory():
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
 
+@app.route('/admin/check_positions')
+@login_required
+def check_positions():
+    missing_items = MenuItem.query.filter(MenuItem.position == None).all()
+    missing_options = MenuOption.query.filter(MenuOption.position == None).all()
+    return f"{len(missing_items)} MenuItems missing position<br>{len(missing_options)} MenuOptions missing position"
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
