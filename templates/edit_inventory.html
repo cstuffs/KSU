@@ -94,7 +94,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in items|sort(attribute='position') %}
+                        {% for item in items %}
                             {% for option in item.options_data %}
                             <tr>
                                 <td>{{ item.name }}</td>
