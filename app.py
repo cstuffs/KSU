@@ -957,27 +957,23 @@ def edit_users():
 @login_required
 def edit_inventory():
     if request.method == 'POST':
-        for item in MenuItem.query.all():
+        items = MenuItem.query.all()
+        for item in items:
             case_size = request.form.get(f"case_size_{item.id}")
             reorder_point = request.form.get(f"reorder_point_{item.id}")
-            position = request.form.get(f"position_{item.id}")
 
-            # Preserve item position
-            if position and position.isdigit():
-                item.position = int(position)
-
-            # Update values only if provided
+            # Only update numeric values if provided and valid
             if case_size and case_size.isdigit():
                 item.case_size = int(case_size)
-
             if reorder_point and reorder_point.isdigit():
                 item.reorder_point = int(reorder_point)
 
+            # DO NOT touch item.position
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    groups = MenuGroup.query.order_by(MenuGroup.position).all()
     grouped_menu = {}
+    groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
         items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
         for item in items:
