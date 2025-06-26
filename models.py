@@ -42,16 +42,15 @@ class OrderItem(db.Model):
 
 class MenuGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True, nullable=False)
-    position = db.Column(db.Integer, nullable=False, default=0)
-    items = db.relationship('MenuItem', back_populates='group', cascade="all, delete-orphan", order_by='MenuItem.position')
+    name = db.Column(db.String, nullable=False)
+    position = db.Column(db.Integer, nullable=False)
 
 class MenuItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    group_id = db.Column(db.Integer, db.ForeignKey('menu_group.id'))
-    position = db.Column(db.Integer, nullable=False, default=0)
-    case_size = db.Column(db.Integer, default=1)
+    group_id = db.Column(db.Integer, db.ForeignKey('menu_group.id'), nullable=False)
+    position = db.Column(db.Integer, nullable=False)
+    case_size = db.Column(db.Integer, default=0)
     reorder_point = db.Column(db.Integer, default=0)
 
     group = db.relationship('MenuGroup', back_populates='items')

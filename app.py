@@ -961,6 +961,7 @@ def edit_inventory():
             case_size = request.form.get(f"case_size_{item.id}")
             reorder_point = request.form.get(f"reorder_point_{item.id}")
 
+            # Update only if valid numbers provided, do NOT touch position
             if case_size and case_size.isdigit():
                 item.case_size = int(case_size)
             if reorder_point and reorder_point.isdigit():
@@ -970,10 +971,8 @@ def edit_inventory():
         return redirect(url_for('edit_inventory'))
 
     groups = MenuGroup.query.order_by(MenuGroup.position).all()
-    grouped_menu = {}
-
+    grouped_menu = OrderedDict()
     for group in groups:
-        # ✅ Pull items using their existing DB-defined order
         items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
         for item in items:
             item.options_data = MenuOption.query.filter_by(item_id=item.id).all()
