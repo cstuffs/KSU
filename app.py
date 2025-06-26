@@ -974,10 +974,9 @@ def edit_inventory():
             case_size = request.form.get(f"case_size_{option.id}", "").strip()
             reorder_point = request.form.get(f"reorder_point_{option.id}", "").strip()
 
-            if case_size.isdigit():
-                option.case_size = int(case_size)
-            if reorder_point.isdigit():
-                option.reorder_point = int(reorder_point)
+            # Set default if blank, else convert
+            option.case_size = int(case_size) if case_size.isdigit() else 1
+            option.reorder_point = int(reorder_point) if reorder_point.isdigit() else 1
 
         db.session.commit()
         return redirect(url_for('edit_inventory'))

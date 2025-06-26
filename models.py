@@ -51,8 +51,8 @@ class MenuItem(db.Model):
     name = db.Column(db.String, nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('menu_group.id'), nullable=False)
     position = db.Column(db.Integer, nullable=False)
-    case_size = db.Column(db.Integer, default=0)
-    reorder_point = db.Column(db.Integer, default=0)
+    case_size = db.Column(db.Integer, default=1)
+    reorder_point = db.Column(db.Integer, default=1)
     group = db.relationship('MenuGroup', back_populates='items')
     options = db.relationship('MenuOption', backref='item', cascade='all, delete-orphan', order_by='MenuOption.position')
 
