@@ -969,20 +969,20 @@ def edit_users():
 @login_required
 def edit_inventory():
     if request.method == 'POST':
-        for item in MenuItem.query.all():
-            case_size = request.form.get(f"case_size_{item.id}")
-            reorder_point = request.form.get(f"reorder_point_{item.id}")
+        items = MenuItem.query.order_by(MenuItem.position).all()
+        for item in items:
+            case_size = request.form.get(f"case_size_{item.id}", "").strip()
+            reorder_point = request.form.get(f"reorder_point_{item.id}", "").strip()
 
-            # Update only if valid numbers provided, do NOT touch position
-            if case_size and case_size.isdigit():
+            if case_size.isdigit():
                 item.case_size = int(case_size)
-            if reorder_point and reorder_point.isdigit():
+            if reorder_point.isdigit():
                 item.reorder_point = int(reorder_point)
 
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    # GET: Load current user assignments for display
+    # GET: Load grouped menu
     grouped_menu = OrderedDict()
     groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
@@ -999,6 +999,12 @@ def check_positions():
     missing_items = MenuItem.query.filter(MenuItem.position == None).all()
     missing_options = MenuOption.query.filter(MenuOption.position == None).all()
     return f"{len(missing_items)} MenuItems missing position<br>{len(missing_options)} MenuOptions missing position"
+
+@app.route('/admin/debug_positions')
+@login_required
+def debug_positions():
+    items = MenuItem.query.order_by(MenuItem.position).all()
+    return "<br>".join([f"{item.name} - position: {item.position}" for item in items])
 
 # === Run the App ===
 if __name__ == '__main__':
