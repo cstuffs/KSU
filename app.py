@@ -999,6 +999,8 @@ def edit_inventory():
 
 from sqlalchemy import inspect, text
 
+from sqlalchemy import inspect, text
+
 @app.route('/add_option_columns')
 def add_option_columns():
     try:
