@@ -962,20 +962,16 @@ def edit_inventory():
             reorder_point = request.form.get(f"reorder_point_{item.id}")
             position = request.form.get(f"position_{item.id}")
 
-            try:
-                item.case_size = int(case_size)
-            except (TypeError, ValueError):
-                pass
-
-            try:
-                item.reorder_point = int(reorder_point)
-            except (TypeError, ValueError):
-                pass
-
-            try:
+            # Preserve item position
+            if position and position.isdigit():
                 item.position = int(position)
-            except (TypeError, ValueError):
-                pass
+
+            # Update values only if provided
+            if case_size and case_size.isdigit():
+                item.case_size = int(case_size)
+
+            if reorder_point and reorder_point.isdigit():
+                item.reorder_point = int(reorder_point)
 
         db.session.commit()
         return redirect(url_for('edit_inventory'))
