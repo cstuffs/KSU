@@ -960,17 +960,12 @@ def edit_inventory():
         for item in MenuItem.query.order_by(MenuItem.position).all():
             case_size = request.form.get(f"case_size_{item.id}")
             reorder_point = request.form.get(f"reorder_point_{item.id}")
-            position = request.form.get(f"position_{item.id}")
 
-            # Update case_size and reorder_point if provided
+            # Only update values, don't touch position
             if case_size and case_size.isdigit():
                 item.case_size = int(case_size)
             if reorder_point and reorder_point.isdigit():
                 item.reorder_point = int(reorder_point)
-
-            # Most importantly: preserve item.position exactly as submitted
-            if position and position.isdigit():
-                item.position = int(position)
 
         db.session.commit()
         return redirect(url_for('edit_inventory'))
