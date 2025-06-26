@@ -832,15 +832,8 @@ def edit_menu():
 
     if request.method == 'POST':
         form = request.form
-
-        # Clear existing menu
-        MenuOption.query.delete()
-        MenuItem.query.delete()
-        MenuGroup.query.delete()
-        db.session.commit()
-
-        # Get group rename mapping
         group_renames = form.to_dict(flat=False)
+
         rename_map = {}
         for key in form:
             if key.startswith("group_rename["):
@@ -849,50 +842,67 @@ def edit_menu():
                 if new_name:
                     rename_map[original_name] = new_name
 
-        # Process each renamed group
-        group_names = [name for name in rename_map.values()]
-        for group_key, group_name in rename_map.items():
-            group_obj = MenuGroup(name=group_name)
-            db.session.add(group_obj)
-            db.session.flush()
+        for group_index, (group_key, group_name) in enumerate(rename_map.items()):
+            # Find or create group
+            group = MenuGroup.query.filter_by(name=group_name).first()
+            if not group:
+                group = MenuGroup(name=group_name)
+                db.session.add(group)
+                db.session.flush()
+
+            group.position = group_index
 
             item_names = form.getlist(f'group_names[{group_key}][item_names][]')
-            for item_name in item_names:
+            for item_index, item_name in enumerate(item_names):
                 item_name = item_name.strip()
                 if not item_name:
                     continue
 
+                # Find or create item
+                item = MenuItem.query.filter_by(name=item_name, group_id=group.id).first()
+                if not item:
+                    item = MenuItem(name=item_name, group_id=group.id)
+                    db.session.add(item)
+                    db.session.flush()
+
+                item.position = item_index
+
+                # Load options and prices
                 options = form.getlist(f'options[{item_name}][]')
                 prices = form.getlist(f'prices[{item_name}][]')
 
                 if not options or not prices or len(options) != len(prices):
                     continue
 
-                item_obj = MenuItem(name=item_name, group_id=group_obj.id)
-                db.session.add(item_obj)
-                db.session.flush()
+                existing_options = {opt.name: opt for opt in item.options}
 
-                for opt_name, price_str in zip(options, prices):
+                for opt_index, (opt_name, price_str) in enumerate(zip(options, prices)):
                     opt_name = opt_name.strip()
                     try:
                         price = float(price_str)
-                        if opt_name:
-                            db.session.add(MenuOption(name=opt_name, price=price, item_id=item_obj.id))
                     except ValueError:
                         continue
+
+                    # Find or create option
+                    option = existing_options.get(opt_name)
+                    if not option:
+                        option = MenuOption(name=opt_name, item_id=item.id)
+                        db.session.add(option)
+
+                    option.price = price
+                    option.position = opt_index
 
         db.session.commit()
         return redirect(url_for('edit_menu'))
 
     # GET: Load from DB
     grouped_menu = OrderedDict()
-    groups = MenuGroup.query.order_by(MenuGroup.id).all()
+    groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
-        group_data = OrderedDict()
-        for item in group.items:
-            options = [{"name": opt.name, "price": opt.price} for opt in item.options]
-            group_data[item.name] = options
-        grouped_menu[group.name] = group_data
+        items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
+        for item in items:
+            item.options_data = MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.position).all()
+        grouped_menu[group.name] = items
 
     return render_template('edit_menu_fixed.html', grouped_menu=grouped_menu)
 
