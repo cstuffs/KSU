@@ -899,10 +899,12 @@ def edit_menu():
     grouped_menu = OrderedDict()
     groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
+        group_data = OrderedDict()
         items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
         for item in items:
-            item.options_data = MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.position).all()
-        grouped_menu[group.name] = items
+            options = [{"name": opt.name, "price": opt.price} for opt in MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.position).all()]
+            group_data[item.name] = options
+        grouped_menu[group.name] = group_data
 
     return render_template('edit_menu_fixed.html', grouped_menu=grouped_menu)
 
