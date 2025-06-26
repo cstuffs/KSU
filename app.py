@@ -970,12 +970,13 @@ def edit_inventory():
         db.session.commit()
         return redirect(url_for('edit_inventory'))
 
-    groups = MenuGroup.query.order_by(MenuGroup.position).all()
+    # GET: Load current user assignments for display
     grouped_menu = OrderedDict()
+    groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
         items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
         for item in items:
-            item.options_data = MenuOption.query.filter_by(item_id=item.id).all()
+            item.options_data = MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.position).all()
         grouped_menu[group.name] = items
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
