@@ -957,11 +957,10 @@ def edit_users():
 @login_required
 def edit_inventory():
     if request.method == 'POST':
-        for item in MenuItem.query.order_by(MenuItem.position).all():
+        for item in MenuItem.query.all():
             case_size = request.form.get(f"case_size_{item.id}")
             reorder_point = request.form.get(f"reorder_point_{item.id}")
 
-            # Only update values, don't touch position
             if case_size and case_size.isdigit():
                 item.case_size = int(case_size)
             if reorder_point and reorder_point.isdigit():
@@ -972,7 +971,9 @@ def edit_inventory():
 
     groups = MenuGroup.query.order_by(MenuGroup.position).all()
     grouped_menu = {}
+
     for group in groups:
+        # ✅ Pull items using their existing DB-defined order
         items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
         for item in items:
             item.options_data = MenuOption.query.filter_by(item_id=item.id).all()
