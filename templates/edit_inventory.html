@@ -104,6 +104,8 @@
                                 </td>
                                 <td>
                                     <input type="number" name="reorder_point_{{ item.id }}" value="{{ item.reorder_point or '' }}" min="0">
+                                    <!-- hidden field to keep item position stable -->
+                                    <input type="hidden" name="position_{{ item.id }}" value="{{ item.position }}">
                                 </td>
                             </tr>
                             {% endfor %}
