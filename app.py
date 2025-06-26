@@ -1001,31 +1001,6 @@ from sqlalchemy import inspect, text
 
 from sqlalchemy import inspect, text
 
-@app.route('/add_option_columns')
-def add_option_columns():
-    try:
-        inspector = inspect(db.engine)
-        columns = [col["name"] for col in inspector.get_columns("menu_option")]
-        messages = []
-
-        if "case_size" not in columns:
-            db.session.execute(text("ALTER TABLE menu_option ADD COLUMN case_size INTEGER DEFAULT 1"))
-            messages.append("✅ Added 'case_size' column.")
-        else:
-            messages.append("ℹ️ 'case_size' already exists.")
-
-        if "reorder_point" not in columns:
-            db.session.execute(text("ALTER TABLE menu_option ADD COLUMN reorder_point INTEGER DEFAULT 1"))
-            messages.append("✅ Added 'reorder_point' column.")
-        else:
-            messages.append("ℹ️ 'reorder_point' already exists.")
-
-        db.session.commit()
-        return "<br>".join(messages)
-
-    except Exception as e:
-        return f"❌ Error: {str(e)}"
-
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
