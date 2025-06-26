@@ -1000,12 +1000,28 @@ def edit_inventory():
 @app.route('/add_option_columns')
 def add_option_columns():
     try:
-        from sqlalchemy import text
-        db.engine.execute(text('ALTER TABLE menu_option ADD COLUMN case_size INTEGER DEFAULT 1'))
-        db.engine.execute(text('ALTER TABLE menu_option ADD COLUMN reorder_point INTEGER DEFAULT 1'))
-        return "✅ Columns 'case_size' and 'reorder_point' added to MenuOption."
+        # Check existing columns
+        inspector = db.inspect(db.engine)
+        columns = [col["name"] for col in inspector.get_columns("menu_option")]
+
+        messages = []
+
+        if "case_size" not in columns:
+            db.engine.execute(db.text("ALTER TABLE menu_option ADD COLUMN case_size INTEGER DEFAULT 1"))
+            messages.append("✅ Added 'case_size' column.")
+        else:
+            messages.append("ℹ️ 'case_size' already exists.")
+
+        if "reorder_point" not in columns:
+            db.engine.execute(db.text("ALTER TABLE menu_option ADD COLUMN reorder_point INTEGER DEFAULT 1"))
+            messages.append("✅ Added 'reorder_point' column.")
+        else:
+            messages.append("ℹ️ 'reorder_point' already exists.")
+
+        return "<br>".join(messages)
+
     except Exception as e:
-        return f"❌ Error: {e}"
+        return f"❌ Error: {str(e)}"
 
 # === Run the App ===
 if __name__ == '__main__':
