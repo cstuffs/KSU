@@ -824,13 +824,18 @@ def initialize_quantities():
     db.session.commit()
     return "✅ Quantities initialized."
 
+from sqlalchemy import text
+
 @app.route('/admin/add_quantity_column')
 def add_quantity_column():
     try:
-        db.engine.execute("ALTER TABLE menu_option ADD COLUMN quantity INTEGER DEFAULT 0")
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE menu_option ADD COLUMN quantity INTEGER DEFAULT 0"))
+            conn.commit()
         return "✅ 'quantity' column added successfully to MenuOption table."
     except Exception as e:
         return f"❌ Error adding column: {str(e)}"
+
 
 @app.route('/admin/budgets', methods=['GET', 'POST'])
 @login_required
