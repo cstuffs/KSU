@@ -6,32 +6,55 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f9fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-box {
+            background-color: #512888;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black, -1px -1px 2px black;
+        }
+
+        .content {
+            max-width: 1000px;
+            margin: 0 auto;
             padding: 20px;
         }
+
         summary {
             font-size: 1.2em;
             font-weight: bold;
             cursor: pointer;
             margin-top: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0;
+            margin-top: 10px;
             background-color: white;
         }
+
         th, td {
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
         }
+
         input[type=number] {
             width: 60px;
         }
+
         button.adjust {
             padding: 3px 7px;
             margin: 0 5px;
         }
+
         .save-btn {
             padding: 5px 10px;
             background-color: #512888;
@@ -40,45 +63,65 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 15px;
+            background-color: #ccc;
+            color: #000;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            background-color: #aaa;
+        }
     </style>
 </head>
 <body>
-    <h2>Inventory Tracker</h2>
-    <form method="POST">
-        {% for group_name, items in grouped_menu.items() %}
-            <details {% if group_name == session.get('openDropdown') %}open{% endif %}>
-                <summary onclick="storeOpenDropdown('{{ group_name }}')">{{ group_name }}</summary>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Item / Option</th>
-                            <th>Quantity</th>
-                            <th>Update</th>
-                            <th>Reorder Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in items %}
-                            {% for opt in item.options_data %}
-                                <tr>
-                                    <td>{{ item.name }} - {{ opt.name }}</td>
-                                    <td>
-                                        <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', -1)">−</button>
-                                        <input type="number" name="quantity_{{ opt.id }}" id="qty_{{ opt.id }}" value="{{ opt.quantity or 0 }}" min="0" />
-                                        <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', 1)">+</button>
-                                    </td>
-                                    <td>
-                                        <button type="submit" name="save" value="{{ opt.id }}" class="save-btn" onclick="setOpenDropdown('{{ group_name }}')">Save</button>
-                                    </td>
-                                    <td>{{ opt.quantity or 0 }}/{{ opt.reorder_point or 0 }}</td>
-                                </tr>
+    <div class="header-box">Inventory Management</div>
+
+    <div class="content">
+        <form method="POST">
+            {% for group_name, items in grouped_menu.items() %}
+                <details {% if group_name == session.get('openDropdown') %}open{% endif %}>
+                    <summary onclick="storeOpenDropdown('{{ group_name }}')">{{ group_name }}</summary>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item / Option</th>
+                                <th>Quantity</th>
+                                <th>Update</th>
+                                <th>Reorder Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                {% for opt in item.options_data %}
+                                    <tr>
+                                        <td>{{ item.name }} - {{ opt.name }}</td>
+                                        <td>
+                                            <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', -1)">−</button>
+                                            <input type="number" name="quantity_{{ opt.id }}" id="qty_{{ opt.id }}" value="{{ opt.quantity or 0 }}" min="0" />
+                                            <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', 1)">+</button>
+                                        </td>
+                                        <td>
+                                            <button type="submit" name="save" value="{{ opt.id }}" class="save-btn" onclick="setOpenDropdown('{{ group_name }}')">Save</button>
+                                        </td>
+                                        <td>{{ opt.quantity or 0 }}/{{ opt.reorder_point or 0 }}</td>
+                                    </tr>
+                                {% endfor %}
                             {% endfor %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </details>
-        {% endfor %}
-    </form>
+                        </tbody>
+                    </table>
+                </details>
+            {% endfor %}
+        </form>
+
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">&larr; Back to Dashboard</a>
+    </div>
 
     <script>
         function adjustQty(id, delta) {
@@ -95,7 +138,6 @@
             sessionStorage.setItem('openDropdown', groupName);
         }
 
-        // Automatically open the last open group
         window.addEventListener('load', () => {
             const open = sessionStorage.getItem('openDropdown');
             if (open) {
