@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Inventory Management</title>
+    <title>Inventory</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -81,12 +81,12 @@
     </style>
 </head>
 <body>
-    <div class="header-box">Inventory Management</div>
+    <div class="header-box">Inventory</div>
 
     <div class="content">
         <form method="POST">
             {% for group_name, items in grouped_menu.items() %}
-                <details {% if group_name == session.get('openDropdown') %}open{% endif %}>
+                <details>
                     <summary onclick="storeOpenDropdown('{{ group_name }}')">{{ group_name }}</summary>
                     <table>
                         <thead>
@@ -146,6 +146,9 @@
                         summary.parentNode.setAttribute('open', true);
                     }
                 });
+            } else {
+                // Ensure all are closed by default
+                document.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
             }
         });
     </script>
