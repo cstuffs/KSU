@@ -824,6 +824,14 @@ def initialize_quantities():
     db.session.commit()
     return "✅ Quantities initialized."
 
+@app.route('/admin/add_quantity_column')
+def add_quantity_column():
+    try:
+        db.engine.execute("ALTER TABLE menu_option ADD COLUMN quantity INTEGER DEFAULT 0")
+        return "✅ 'quantity' column added successfully to MenuOption table."
+    except Exception as e:
+        return f"❌ Error adding column: {str(e)}"
+
 @app.route('/admin/budgets', methods=['GET', 'POST'])
 @login_required
 def manage_budgets():
