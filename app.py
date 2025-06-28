@@ -787,12 +787,34 @@ def all_orders():
 
     return render_template("all_orders.html", orders=all_orders)
 
-@app.route('/admin/inventory')
+@app.route('/admin/inventory', methods=['GET', 'POST'])
 @login_required
 def view_inventory():
     if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
         return "Access Denied", 403
-    return render_template("inventory.html") 
+
+    if request.method == 'POST':
+        for key, value in request.form.items():
+            if key.startswith('quantity_'):
+                option_id = key.replace('quantity_', '')
+                option = MenuOption.query.get(int(option_id))
+                if option:
+                    try:
+                        option.quantity = int(value)
+                    except ValueError:
+                        continue
+        db.session.commit()
+        return redirect(url_for('view_inventory'))
+
+    grouped_menu = OrderedDict()
+    groups = MenuGroup.query.order_by(MenuGroup.position).all()
+    for group in groups:
+        items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
+        for item in items:
+            item.options_data = MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.position).all()
+        grouped_menu[group.name] = items
+
+    return render_template('inventory.html', grouped_menu=grouped_menu)
 
 @app.route('/admin/budgets', methods=['GET', 'POST'])
 @login_required
@@ -996,10 +1018,6 @@ def edit_inventory():
         grouped_menu[group.name] = items
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
-
-from sqlalchemy import inspect, text
-
-from sqlalchemy import inspect, text
 
 # === Run the App ===
 if __name__ == '__main__':
