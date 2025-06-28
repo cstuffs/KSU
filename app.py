@@ -827,27 +827,6 @@ def view_inventory():
 
     return render_template('inventory.html', grouped_menu=grouped_menu)
 
-@app.route('/admin/initialize_quantities')
-def initialize_quantities():
-    from models import MenuOption
-    for option in MenuOption.query.all():
-        option.quantity = 0
-    db.session.commit()
-    return "✅ Quantities initialized."
-
-from sqlalchemy import text
-
-@app.route('/admin/add_quantity_column')
-def add_quantity_column():
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE menu_option ADD COLUMN quantity INTEGER DEFAULT 0"))
-            conn.commit()
-        return "✅ 'quantity' column added successfully to MenuOption table."
-    except Exception as e:
-        return f"❌ Error adding column: {str(e)}"
-
-
 @app.route('/admin/budgets', methods=['GET', 'POST'])
 @login_required
 def manage_budgets():
