@@ -84,11 +84,10 @@
     <div class="header-box">Inventory</div>
 
     <div class="content">
-        <script>sessionStorage.removeItem('openDropdown');</script>
-        <form method="POST">
+        <form method="POST" onsubmit="captureOpenGroup()">
             {% for group_name, items in grouped_menu.items() %}
-                <details>
-                    <summary onclick="storeOpenDropdown('{{ group_name }}')">{{ group_name }}</summary>
+                <details data-group="{{ group_name }}">
+                    <summary>{{ group_name }}</summary>
                     <table>
                         <thead>
                             <tr>
@@ -109,7 +108,7 @@
                                             <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', 1)">+</button>
                                         </td>
                                         <td>
-                                            <button type="submit" name="save" value="{{ opt.id }}" class="save-btn" onclick="setOpenDropdown('{{ group_name }}')">Save</button>
+                                            <button type="submit" name="save" value="{{ opt.id }}" class="save-btn">Save</button>
                                         </td>
                                         <td>{{ opt.quantity or 0 }}/{{ opt.reorder_point or 0 }}</td>
                                     </tr>
@@ -131,26 +130,23 @@
             input.value = Math.max(0, current + delta);
         }
 
-        function setOpenDropdown(groupName) {
-            sessionStorage.setItem('openDropdown', groupName);
-        }
-
-        function storeOpenDropdown(groupName) {
-            sessionStorage.setItem('openDropdown', groupName);
+        function captureOpenGroup() {
+            const openDetail = document.querySelector('details[open]');
+            if (openDetail) {
+                const group = openDetail.getAttribute('data-group');
+                sessionStorage.setItem('openDropdown', group);
+            }
         }
 
         window.addEventListener('load', () => {
-            // Always close all dropdowns first
-            document.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
-
-            const open = sessionStorage.getItem('openDropdown');
-            if (open) {
-                document.querySelectorAll('summary').forEach(summary => {
-                    if (summary.textContent.trim() === open) {
-                        summary.parentNode.setAttribute('open', true);
-                    }
-                });
-            }
+            const savedGroup = sessionStorage.getItem('openDropdown');
+            document.querySelectorAll('details').forEach(detail => {
+                detail.removeAttribute('open');
+                const group = detail.getAttribute('data-group');
+                if (group === savedGroup) {
+                    detail.setAttribute('open', true);
+                }
+            });
         });
     </script>
 </body>
