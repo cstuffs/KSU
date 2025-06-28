@@ -313,8 +313,19 @@ def finalize_order():
                 price=item["price"]
             ))
 
+            # ✅ SUBTRACT FROM INVENTORY
+            menu_option = MenuOption.query.join(MenuItem).filter(
+                MenuItem.name == item["name"],
+                MenuOption.name == item["option"]
+            ).first()
+
+            if menu_option:
+                menu_option.quantity = max(0, (menu_option.quantity or 0) - item["quantity"])
+
+        # ✅ Adjust budget after all items
         team = current_user.team
         team.remaining_budget -= total
+
         db.session.commit()
 
     # ✅ Clear form session after saving
