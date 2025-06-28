@@ -48,6 +48,19 @@
 
         input[type=number] {
             width: 60px;
+            text-align: center;
+        }
+
+        /* Remove spinner arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+        appearance: textfield;
+        text-align: center;
         }
 
         button.adjust {
