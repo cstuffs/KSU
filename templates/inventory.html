@@ -46,8 +46,8 @@
     <h2>Inventory Tracker</h2>
     <form method="POST">
         {% for group_name, items in grouped_menu.items() %}
-            <details>
-                <summary>{{ group_name }}</summary>
+            <details {% if group_name == session.get('openDropdown') %}open{% endif %}>
+                <summary onclick="storeOpenDropdown('{{ group_name }}')">{{ group_name }}</summary>
                 <table>
                     <thead>
                         <tr>
@@ -64,11 +64,13 @@
                                     <td>{{ item.name }} - {{ opt.name }}</td>
                                     <td>
                                         <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', -1)">−</button>
-                                        <input type="number" name="quantity_{{ opt.id }}" id="qty_{{ opt.id }}" value="{{ opt.quantity }}" min="0" />
+                                        <input type="number" name="quantity_{{ opt.id }}" id="qty_{{ opt.id }}" value="{{ opt.quantity or 0 }}" min="0" />
                                         <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', 1)">+</button>
                                     </td>
-                                    <td><button type="submit" name="save" value="{{ opt.id }}" class="save-btn">Save</button></td>
-                                    <td>{{ opt.quantity }}/{{ opt.reorder_point }}</td>
+                                    <td>
+                                        <button type="submit" name="save" value="{{ opt.id }}" class="save-btn" onclick="setOpenDropdown('{{ group_name }}')">Save</button>
+                                    </td>
+                                    <td>{{ opt.quantity or 0 }}/{{ opt.reorder_point or 0 }}</td>
                                 </tr>
                             {% endfor %}
                         {% endfor %}
@@ -77,12 +79,33 @@
             </details>
         {% endfor %}
     </form>
+
     <script>
         function adjustQty(id, delta) {
             const input = document.getElementById(id);
             let current = parseInt(input.value || '0');
             input.value = Math.max(0, current + delta);
         }
+
+        function setOpenDropdown(groupName) {
+            sessionStorage.setItem('openDropdown', groupName);
+        }
+
+        function storeOpenDropdown(groupName) {
+            sessionStorage.setItem('openDropdown', groupName);
+        }
+
+        // Automatically open the last open group
+        window.addEventListener('load', () => {
+            const open = sessionStorage.getItem('openDropdown');
+            if (open) {
+                document.querySelectorAll('summary').forEach(summary => {
+                    if (summary.textContent.trim() === open) {
+                        summary.parentNode.setAttribute('open', true);
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

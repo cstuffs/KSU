@@ -816,6 +816,14 @@ def view_inventory():
 
     return render_template('inventory.html', grouped_menu=grouped_menu)
 
+@app.route('/admin/initialize_quantities')
+def initialize_quantities():
+    from models import MenuOption
+    for option in MenuOption.query.all():
+        option.quantity = 0
+    db.session.commit()
+    return "✅ Quantities initialized."
+
 @app.route('/admin/budgets', methods=['GET', 'POST'])
 @login_required
 def manage_budgets():

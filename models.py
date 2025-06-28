@@ -62,7 +62,8 @@ class MenuOption(db.Model):
     price = db.Column(db.Float, nullable=False)
     position = db.Column(db.Integer, nullable=False, default=0)
     item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
-    
+    quantity = db.Column(db.Integer, default=0)
+
     # ✅ Add these:
     case_size = db.Column(db.Integer, default=1)
     reorder_point = db.Column(db.Integer, default=1)
