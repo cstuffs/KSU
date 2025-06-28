@@ -68,15 +68,15 @@
             display: inline-block;
             margin-top: 30px;
             padding: 10px 15px;
-            background-color: #ccc;
-            color: #000;
+            background-color: #512888;
+            color: white;
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
         }
 
         .back-link:hover {
-            background-color: #aaa;
+            background-color: #341a61;
         }
     </style>
 </head>
@@ -140,15 +140,13 @@
 
         window.addEventListener('load', () => {
             const open = sessionStorage.getItem('openDropdown');
+            document.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
             if (open) {
                 document.querySelectorAll('summary').forEach(summary => {
                     if (summary.textContent.trim() === open) {
                         summary.parentNode.setAttribute('open', true);
                     }
                 });
-            } else {
-                // Ensure all are closed by default
-                document.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
             }
         });
     </script>
