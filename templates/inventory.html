@@ -84,6 +84,7 @@
     <div class="header-box">Inventory</div>
 
     <div class="content">
+        <script>sessionStorage.removeItem('openDropdown');</script>
         <form method="POST">
             {% for group_name, items in grouped_menu.items() %}
                 <details>
@@ -139,8 +140,10 @@
         }
 
         window.addEventListener('load', () => {
-            const open = sessionStorage.getItem('openDropdown');
+            // Always close all dropdowns first
             document.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
+
+            const open = sessionStorage.getItem('openDropdown');
             if (open) {
                 document.querySelectorAll('summary').forEach(summary => {
                     if (summary.textContent.trim() === open) {
