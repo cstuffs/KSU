@@ -167,17 +167,25 @@ function removeRow(btn) {
 }
 function deleteItemBlock(btn) {
     const itemBlock = btn.closest('.draggable-item');
-    const nameInput = itemBlock.querySelector('.item-name-input');
-    const itemName = nameInput ? nameInput.value.trim() : null;
-    const hiddenInput = itemBlock.querySelector('.group-hidden-input');
-    if (hiddenInput) hiddenInput.remove();
+    const groupDetails = btn.closest("details");
+    const itemNameInput = itemBlock.querySelector('.item-name-input');
+    const itemName = itemNameInput?.value.trim();
+
     if (itemName) {
+        // Remove all related inputs across the form
         document.querySelectorAll(`input[name="item_names[]"]`).forEach(input => {
             if (input.value.trim() === itemName) input.remove();
         });
         document.querySelectorAll(`input[name="options[${itemName}][]"]`).forEach(input => input.remove());
         document.querySelectorAll(`input[name="prices[${itemName}][]"]`).forEach(input => input.remove());
+
+        // Also remove the hidden group_names input
+        groupDetails.querySelectorAll(`input.group-hidden-input`).forEach(input => {
+            if (input.value.trim() === itemName) input.remove();
+        });
     }
+
+    // Remove the visual block
     itemBlock.remove();
 }
 
