@@ -865,9 +865,9 @@ def edit_menu():
 
     if request.method == 'POST':
         form = request.form
-        group_renames = form.to_dict(flat=False)
-
         rename_map = {}
+
+        # Extract group renames
         for key in form:
             if key.startswith("group_rename["):
                 original_name = key.split("group_rename[")[1].split("]")[0]
@@ -883,7 +883,7 @@ def edit_menu():
                 db.session.add(group)
                 db.session.flush()
 
-            group.position = group_index
+            # Do NOT touch group.position here
 
             item_names = form.getlist(f'group_names[{group_key}][item_names][]')
             for item_index, item_name in enumerate(item_names):
@@ -898,37 +898,46 @@ def edit_menu():
                     db.session.add(item)
                     db.session.flush()
 
-                item.position = item_index
+                # Do NOT touch item.position here
 
-                # Load options and prices
+                # Load options and prices from form
                 options = form.getlist(f'options[{item_name}][]')
                 prices = form.getlist(f'prices[{item_name}][]')
 
                 if not options or not prices or len(options) != len(prices):
                     continue
 
+                # Track existing options and which ones are updated
                 existing_options = {opt.name: opt for opt in item.options}
+                updated_option_names = set()
 
-                for opt_index, (opt_name, price_str) in enumerate(zip(options, prices)):
+                for opt_name, price_str in zip(options, prices):
                     opt_name = opt_name.strip()
+                    updated_option_names.add(opt_name)
+
                     try:
                         price = float(price_str)
                     except ValueError:
                         continue
 
-                    # Find or create option
                     option = existing_options.get(opt_name)
                     if not option:
                         option = MenuOption(name=opt_name, item_id=item.id)
                         db.session.add(option)
 
+                    # Do NOT touch option.position here
                     option.price = price
-                    option.position = opt_index
+
+                # Delete options that were removed (only if not used in inventory)
+                for opt_name, opt in existing_options.items():
+                    if opt_name not in updated_option_names:
+                        if (opt.quantity or 0) == 0:
+                            db.session.delete(opt)
 
         db.session.commit()
         return redirect(url_for('edit_menu'))
 
-    # GET: Load from DB
+    # === GET: Load grouped menu for display ===
     grouped_menu = OrderedDict()
     groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
