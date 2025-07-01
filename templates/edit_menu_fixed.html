@@ -156,17 +156,15 @@ function syncFieldNames(input) {
     const newName = input.value.trim();
     const container = input.closest(".draggable-item");
 
-    // Update hidden group tracking input
-    const hidden = container.querySelector('.group-hidden-input');
-    if (hidden) hidden.value = newName;
-
-    // Update all option and price input names
     container.querySelectorAll('input[name^="options["]').forEach(opt => {
         opt.name = `options[${newName}][]`;
     });
     container.querySelectorAll('input[name^="prices["]').forEach(price => {
         price.name = `prices[${newName}][]`;
     });
+
+    const hidden = container.querySelector('.group-hidden-input');
+    if (hidden) hidden.value = newName;
 }
 
 function removeRow(btn) {
@@ -198,8 +196,12 @@ function deleteItemBlock(btn) {
     itemBlock.remove();
 }
 
-function addOption(button, itemName) {
-    const tbody = button.closest('.draggable-item').querySelector('.option-body');
+function addOption(button) {
+    const container = button.closest('.draggable-item');
+    const itemInput = container.querySelector('.item-name-input');
+    const itemName = itemInput.value.trim();
+
+    const tbody = container.querySelector('.option-body');
     const newRow = document.createElement('tr');
     newRow.innerHTML = `
         <td></td>
@@ -208,13 +210,16 @@ function addOption(button, itemName) {
         <td><button type="button" onclick="removeRow(this)">✖</button></td>
     `;
     tbody.appendChild(newRow);
+
+    // ✅ Also re-sync names
+    if (itemInput) syncFieldNames(itemInput);
 }
 
 function addItemBlock(containerId, groupName) {
     const container = document.getElementById(containerId);
     const newName = `New Item ${Math.floor(Math.random() * 1000)}`;
     const html = `
-        <div class="draggable-item">
+        <div class="draggable-item" data-item-id="${newName}">
             <table>
                 <thead><tr><th>Item Name</th><th>Option</th><th>Price</th><th>Action</th></tr></thead>
                 <tbody class="option-body">
@@ -225,12 +230,12 @@ function addItemBlock(containerId, groupName) {
                     </td>
                     <td><input type="text" name="options[${newName}][]" placeholder="Option" required></td>
                     <td><input type="number" name="prices[${newName}][]" placeholder="Price" step="0.01" required></td>
-                    <td><button type="button" onclick="removeRow(this)">✖</button></td>
+                    <td></td>
                 </tr>
                 </tbody>
             </table>
             <div>
-                <button type="button" onclick="addOption(this, '${newName}')">➕ Add Option</button>
+                <button type="button" onclick="addOption(this)">➕ Add Option</button>
                 <button type="button" onclick="deleteItemBlock(this)">❌ Delete Item</button>
             </div>
         </div>
