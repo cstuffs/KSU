@@ -89,7 +89,7 @@
     <details data-original-group="{{ group_name }}">
         <summary>
             <input type="text" name="group_rename[{{ group_name }}]" value="{{ group_name }}" oninput="updateGroupName(this)">
-            <button type="button" onclick="deleteGroup(this)">Delete Group</button>
+            <button type="button" class="delete-group-btn">Delete Group</button>
         </summary>
         <div id="group_{{ loop.index }}" class="sortable-group">
             {% for item_name, options in items.items() %}
@@ -247,11 +247,6 @@ function addNewGroup() {
         </details>
     `;
     document.querySelector("form").insertAdjacentHTML("beforeend", groupHtml);
-
-    // 👇 Attach event listener for the delete button you just inserted
-    const newGroup = document.querySelectorAll("details")[document.querySelectorAll("details").length - 1];
-    const deleteBtn = newGroup.querySelector(".delete-group-btn");
-    deleteBtn.onclick = () => deleteGroup(deleteBtn);
 }
 
 function deleteGroup(button) {
@@ -269,6 +264,12 @@ window.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+document.addEventListener("click", function (e) {
+    if (e.target && e.target.classList.contains("delete-group-btn")) {
+        deleteGroup(e.target);
+    }
+});
+
 </script>
 </div>
 </body>
