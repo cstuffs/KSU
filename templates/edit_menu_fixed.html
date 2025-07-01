@@ -175,16 +175,18 @@ function deleteItemBlock(btn) {
         return;
     }
 
-    // Remove hidden group_names input from the same <details> block
+    // Get the parent details group (this contains the hidden group_names[] inputs)
     const group = btn.closest("details");
-    const hiddenInputs = group.querySelectorAll('.group-hidden-input');
+    
+    // Remove the hidden input from the group_names[...] array
+    const hiddenInputs = group.querySelectorAll(`input[name^="group_names["]`);
     hiddenInputs.forEach(input => {
         if (input.value.trim() === itemName) {
             input.remove();
         }
     });
 
-    // Remove all other related inputs from this item block
+    // Remove other inputs from the item block
     itemBlock.querySelectorAll(`input[name="item_names[]"]`).forEach(input => input.remove());
     itemBlock.querySelectorAll(`input[name^="options["]`).forEach(input => input.remove());
     itemBlock.querySelectorAll(`input[name^="prices["]`).forEach(input => input.remove());
