@@ -155,14 +155,18 @@ function updateGroupName(input) {
 function syncFieldNames(input) {
     const newName = input.value.trim();
     const container = input.closest(".draggable-item");
+
+    // Update hidden group tracking input
+    const hidden = container.querySelector('.group-hidden-input');
+    if (hidden) hidden.value = newName;
+
+    // Update all option and price input names
     container.querySelectorAll('input[name^="options["]').forEach(opt => {
         opt.name = `options[${newName}][]`;
     });
     container.querySelectorAll('input[name^="prices["]').forEach(price => {
         price.name = `prices[${newName}][]`;
     });
-    const hidden = container.querySelector('.group-hidden-input');
-    if (hidden) hidden.value = newName;
 }
 
 function removeRow(btn) {
