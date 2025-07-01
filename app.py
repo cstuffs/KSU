@@ -924,12 +924,14 @@ def edit_menu():
                         if (opt.quantity or 0) == 0:
                             db.session.delete(opt)
 
-            # Delete removed items from this group (only if they have no options)
+            # 🔥 Delete removed items from this group and their options
             existing_items = MenuItem.query.filter_by(group_id=group.id).all()
             for existing_item in existing_items:
                 if existing_item.name not in submitted_item_names:
-                    if not existing_item.options:
-                        db.session.delete(existing_item)
+                    # Delete all associated options first
+                    for opt in existing_item.options:
+                        db.session.delete(opt)
+                    db.session.delete(existing_item)
 
         db.session.commit()
         return redirect(url_for('edit_menu'))
