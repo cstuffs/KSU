@@ -109,7 +109,12 @@
                         {% endif %}
                         <td><input type="text" class="option-name-input" name="options[{{ item_name }}][]" value="{{ opt.name }}" required></td>
                         <td><input type="number" name="prices[{{ item_name }}][]" value="{{ opt.price }}" step="0.01" required></td>
-                        <td><button type="button" onclick="removeRow(this)">✖</button></td>
+                        <td>
+                            {% if not loop.first %}
+                                <button type="button" onclick="removeRow(this)">✖</button>
+                            {% endif %}
+                        </td>
+
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -174,11 +179,7 @@ function deleteItemBlock(btn) {
         itemBlock.remove();
         return;
     }
-
-    // Get the parent details group (this contains the hidden group_names[] inputs)
     const group = btn.closest("details");
-    
-    // Remove the hidden input from the group_names[...] array
     const hiddenInputs = group.querySelectorAll(`input[name^="group_names["]`);
     hiddenInputs.forEach(input => {
         if (input.value.trim() === itemName) {
@@ -186,7 +187,6 @@ function deleteItemBlock(btn) {
         }
     });
 
-    // Remove other inputs from the item block
     itemBlock.querySelectorAll(`input[name="item_names[]"]`).forEach(input => input.remove());
     itemBlock.querySelectorAll(`input[name^="options["]`).forEach(input => input.remove());
     itemBlock.querySelectorAll(`input[name^="prices["]`).forEach(input => input.remove());
