@@ -253,7 +253,6 @@ function deleteGroup(button) {
     button.closest("details").remove();
 }
 
-// Drag setup
 window.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".sortable-group").forEach(group => {
         Sortable.create(group, {
@@ -263,11 +262,14 @@ window.addEventListener("DOMContentLoaded", () => {
             ghostClass: "sortable-ghost"
         });
     });
-});
-document.addEventListener("click", function (e) {
-    if (e.target && e.target.classList.contains("delete-group-btn")) {
-        deleteGroup(e.target);
-    }
+    document.addEventListener("click", function (e) {
+        if (e.target && e.target.classList.contains("delete-group-btn")) {
+            const details = e.target.closest("details");
+            if (details) {
+                details.remove();
+            }
+        }
+    });
 });
 
 </script>
