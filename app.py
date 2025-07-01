@@ -932,6 +932,20 @@ def edit_menu():
                     for opt in existing_item.options:
                         db.session.delete(opt)
                     db.session.delete(existing_item)
+                    
+        # 🔥 Delete groups that were removed from the form
+        all_existing_groups = MenuGroup.query.all()
+        submitted_group_names = set(rename_map.values())
+
+        for group in all_existing_groups:
+            if group.name not in submitted_group_names:
+                # Delete all items and options under this group
+                items = MenuItem.query.filter_by(group_id=group.id).all()
+                for item in items:
+                    for opt in item.options:
+                        db.session.delete(opt)
+                    db.session.delete(item)
+                db.session.delete(group)
 
         db.session.commit()
         return redirect(url_for('edit_menu'))

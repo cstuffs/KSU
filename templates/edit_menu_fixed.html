@@ -246,7 +246,24 @@ function addNewGroup() {
             <div id="group_${index}" class="sortable-group"></div>
         </details>
     `;
+    // Insert new group HTML
     document.querySelector("form").insertAdjacentHTML("beforeend", groupHtml);
+
+    // Get reference to the new group
+    const newGroupEl = document.getElementById(`group_${index}`);
+    Sortable.create(newGroupEl, {
+        animation: 150,
+        handle: ".draggable-item",
+        draggable: ".draggable-item",
+        ghostClass: "sortable-ghost"
+    });
+
+    // Attach click event directly to new Delete Group button
+    const newDetails = newGroupEl.closest("details");
+    const deleteBtn = newDetails.querySelector(".delete-group-btn");
+    deleteBtn.onclick = function () {
+        deleteGroup(this);
+    };
 }
 
 function deleteGroup(button) {
@@ -261,14 +278,6 @@ window.addEventListener("DOMContentLoaded", () => {
             draggable: ".draggable-item",
             ghostClass: "sortable-ghost"
         });
-    });
-    document.addEventListener("click", function (e) {
-        if (e.target && e.target.classList.contains("delete-group-btn")) {
-            const details = e.target.closest("details");
-            if (details) {
-                details.remove();
-            }
-        }
     });
 });
 
