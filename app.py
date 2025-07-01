@@ -867,7 +867,6 @@ def edit_menu():
         form = request.form
         rename_map = {}
 
-        # Extract group renames
         for key in form:
             if key.startswith("group_rename["):
                 original_name = key.split("group_rename[")[1].split("]")[0]
@@ -876,29 +875,22 @@ def edit_menu():
                     rename_map[original_name] = new_name
 
         for group_index, (group_key, group_name) in enumerate(rename_map.items()):
-            # Find or create group
             group = MenuGroup.query.filter_by(name=group_name).first()
             if not group:
                 group = MenuGroup(name=group_name)
                 db.session.add(group)
                 db.session.flush()
 
-            # Do NOT touch group.position here
-
+            # Load item names submitted for this group
             item_names = form.getlist(f'group_names[{group_key}][item_names][]')
-            for item_index, item_name in enumerate(item_names):
-                item_name = item_name.strip()
-                if not item_name:
-                    continue
+            submitted_item_names = set(name.strip() for name in item_names if name.strip())
 
-                # Find or create item
+            for item_name in submitted_item_names:
                 item = MenuItem.query.filter_by(name=item_name, group_id=group.id).first()
                 if not item:
                     item = MenuItem(name=item_name, group_id=group.id)
                     db.session.add(item)
                     db.session.flush()
-
-                # Do NOT touch item.position here
 
                 # Load options and prices from form
                 options = form.getlist(f'options[{item_name}][]')
@@ -907,7 +899,6 @@ def edit_menu():
                 if not options or not prices or len(options) != len(prices):
                     continue
 
-                # Track existing options and which ones are updated
                 existing_options = {opt.name: opt for opt in item.options}
                 updated_option_names = set()
 
@@ -925,26 +916,35 @@ def edit_menu():
                         option = MenuOption(name=opt_name, item_id=item.id)
                         db.session.add(option)
 
-                    # Do NOT touch option.position here
-                    option.price = price
+                    option.price = price  # Leave position, quantity, etc., untouched
 
-                # Delete options that were removed (only if not used in inventory)
+                # Delete removed options (only if quantity is 0 or None)
                 for opt_name, opt in existing_options.items():
                     if opt_name not in updated_option_names:
                         if (opt.quantity or 0) == 0:
                             db.session.delete(opt)
 
+            # Delete removed items from this group (only if they have no options)
+            existing_items = MenuItem.query.filter_by(group_id=group.id).all()
+            for existing_item in existing_items:
+                if existing_item.name not in submitted_item_names:
+                    if not existing_item.options:
+                        db.session.delete(existing_item)
+
         db.session.commit()
         return redirect(url_for('edit_menu'))
 
-    # === GET: Load grouped menu for display ===
+    # === GET: Load current grouped menu ===
     grouped_menu = OrderedDict()
     groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
         group_data = OrderedDict()
         items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
         for item in items:
-            options = [{"name": opt.name, "price": opt.price} for opt in MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.position).all()]
+            options = [
+                {"name": opt.name, "price": opt.price}
+                for opt in MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.position).all()
+            ]
             group_data[item.name] = options
         grouped_menu[group.name] = group_data
 
