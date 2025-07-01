@@ -167,11 +167,16 @@ function removeRow(btn) {
 }
 function deleteItemBlock(btn) {
     const itemBlock = btn.closest('.draggable-item');
-
-    const hiddenName = itemBlock.querySelector('.group-hidden-input')?.value;
-    if (hiddenName) {
-        const group = btn.closest("details");
-        group.querySelectorAll(`input.group-hidden-input[value="${hiddenName}"]`).forEach(input => input.remove());
+    const nameInput = itemBlock.querySelector('.item-name-input');
+    const itemName = nameInput ? nameInput.value.trim() : null;
+    const hiddenInput = itemBlock.querySelector('.group-hidden-input');
+    if (hiddenInput) hiddenInput.remove();
+    if (itemName) {
+        document.querySelectorAll(`input[name="item_names[]"]`).forEach(input => {
+            if (input.value.trim() === itemName) input.remove();
+        });
+        document.querySelectorAll(`input[name="options[${itemName}][]"]`).forEach(input => input.remove());
+        document.querySelectorAll(`input[name="prices[${itemName}][]"]`).forEach(input => input.remove());
     }
     itemBlock.remove();
 }
