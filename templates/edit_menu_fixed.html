@@ -167,7 +167,16 @@ function removeRow(btn) {
 }
 
 function deleteItemBlock(btn) {
-    btn.closest('.draggable-item').remove();
+    const itemBlock = btn.closest('.draggable-item');
+
+    // Remove hidden item name input from the group
+    const hiddenInput = itemBlock.querySelector('.group-hidden-input');
+    if (hiddenInput) {
+        hiddenInput.remove();
+    }
+
+    // Remove the entire item block from the DOM
+    itemBlock.remove();
 }
 
 function addOption(button, itemName) {
