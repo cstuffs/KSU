@@ -279,6 +279,15 @@ window.addEventListener("DOMContentLoaded", () => {
             ghostClass: "sortable-ghost"
         });
     });
+    // ✅ Delegated Delete Group Handler
+    document.addEventListener("click", function (e) {
+        if (e.target && e.target.classList.contains("delete-group-btn")) {
+            const details = e.target.closest("details");
+            if (details) {
+                details.remove(); // removes group from DOM
+            }
+        }
+    });
 });
 
 </script>
