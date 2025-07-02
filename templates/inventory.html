@@ -95,10 +95,6 @@
             background-color: #341a61;
         }
 
-        .reorder-section h2 {
-            margin-top: 30px;
-        }
-
         .reorder-section table thead {
             background-color: #f8d7da;
         }
@@ -118,7 +114,7 @@
     <div class="content">
         <!-- 🚨 Reorder Section -->
         <div class="reorder-section">
-            <details>
+            <details id="reorder-section">
                 <summary style="font-size: 1.4em; font-weight: bold; margin-bottom: 10px;">Items to Reorder</summary>
                 {% if reorder_items %}
                 <table>
@@ -213,6 +209,9 @@
                     detail.setAttribute('open', true);
                 }
             });
+
+            // ✅ Force reorder section to always start closed
+            document.getElementById("reorder-section")?.removeAttribute("open");
         });
     </script>
 </body>
