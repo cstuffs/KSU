@@ -51,7 +51,6 @@
             text-align: center;
         }
 
-        /* Remove spinner arrows */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -59,8 +58,7 @@
         }
 
         input[type=number] {
-        appearance: textfield;
-        text-align: center;
+            appearance: textfield;
         }
 
         button.adjust {
@@ -96,45 +94,93 @@
         .back-link:hover {
             background-color: #341a61;
         }
+
+        .reorder-section h2 {
+            margin-top: 30px;
+        }
+
+        .reorder-section table thead {
+            background-color: #f8d7da;
+        }
+
+        .reorder-section tr.low-stock {
+            background-color: #fbeaec;
+        }
+
+        .reorder-section {
+            margin-bottom: 40px;
+        }
     </style>
 </head>
 <body>
     <div class="header-box">Inventory</div>
 
     <div class="content">
+        <!-- 🚨 Reorder Section -->
+        <div class="reorder-section">
+            <h2>🚨 Items to Reorder</h2>
+            {% if reorder_items %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Group</th>
+                        <th>Item</th>
+                        <th>Option</th>
+                        <th>Quantity</th>
+                        <th>Reorder Point</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for option in reorder_items %}
+                    <tr class="{% if option.quantity <= option.reorder_point %}low-stock{% endif %}">
+                        <td>{{ option.item.group.name }}</td>
+                        <td>{{ option.item.name }}</td>
+                        <td>{{ option.name }}</td>
+                        <td>{{ option.quantity or 0 }}</td>
+                        <td>{{ option.reorder_point or 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>✅ No items need to be reordered right now.</p>
+            {% endif %}
+        </div>
+
+        <!-- 🔧 Main Inventory Editor -->
         <form method="POST" onsubmit="captureOpenGroup()">
             {% for group_name, items in grouped_menu.items() %}
-                <details data-group="{{ group_name }}">
-                    <summary>{{ group_name }}</summary>
-                    <table>
-                        <thead>
+            <details data-group="{{ group_name }}">
+                <summary>{{ group_name }}</summary>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item / Option</th>
+                            <th>Quantity</th>
+                            <th>Update</th>
+                            <th>Reorder Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            {% for opt in item.options_data %}
                             <tr>
-                                <th>Item / Option</th>
-                                <th>Quantity</th>
-                                <th>Update</th>
-                                <th>Reorder Status</th>
+                                <td>{{ item.name }} - {{ opt.name }}</td>
+                                <td>
+                                    <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', -1)">−</button>
+                                    <input type="number" name="quantity_{{ opt.id }}" id="qty_{{ opt.id }}" value="{{ opt.quantity or 0 }}" min="0" />
+                                    <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', 1)">+</button>
+                                </td>
+                                <td>
+                                    <button type="submit" name="save" value="{{ opt.id }}" class="save-btn">Save</button>
+                                </td>
+                                <td>{{ opt.quantity or 0 }}/{{ opt.reorder_point or 0 }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in items %}
-                                {% for opt in item.options_data %}
-                                    <tr>
-                                        <td>{{ item.name }} - {{ opt.name }}</td>
-                                        <td>
-                                            <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', -1)">−</button>
-                                            <input type="number" name="quantity_{{ opt.id }}" id="qty_{{ opt.id }}" value="{{ opt.quantity or 0 }}" min="0" />
-                                            <button type="button" class="adjust" onclick="adjustQty('qty_{{ opt.id }}', 1)">+</button>
-                                        </td>
-                                        <td>
-                                            <button type="submit" name="save" value="{{ opt.id }}" class="save-btn">Save</button>
-                                        </td>
-                                        <td>{{ opt.quantity or 0 }}/{{ opt.reorder_point or 0 }}</td>
-                                    </tr>
-                                {% endfor %}
                             {% endfor %}
-                        </tbody>
-                    </table>
-                </details>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </details>
             {% endfor %}
         </form>
 

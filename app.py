@@ -817,6 +817,7 @@ def view_inventory():
         db.session.commit()
         return redirect(url_for('view_inventory'))
 
+    # === Grouped menu view ===
     grouped_menu = OrderedDict()
     groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
@@ -825,7 +826,15 @@ def view_inventory():
             item.options_data = MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.position).all()
         grouped_menu[group.name] = items
 
-    return render_template('inventory.html', grouped_menu=grouped_menu)
+    # === Reorder Items (where quantity <= reorder point) ===
+    reorder_items = MenuOption.query\
+        .join(MenuItem, MenuOption.item_id == MenuItem.id)\
+        .join(MenuGroup, MenuItem.group_id == MenuGroup.id)\
+        .filter(MenuOption.quantity <= MenuOption.reorder_point)\
+        .order_by(MenuGroup.name, MenuItem.name)\
+        .all()
+
+    return render_template('inventory.html', grouped_menu=grouped_menu, reorder_items=reorder_items)
 
 @app.route('/admin/budgets', methods=['GET', 'POST'])
 @login_required
