@@ -118,33 +118,35 @@
     <div class="content">
         <!-- 🚨 Reorder Section -->
         <div class="reorder-section">
-            <h2>🚨 Items to Reorder</h2>
-            {% if reorder_items %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Group</th>
-                        <th>Item</th>
-                        <th>Option</th>
-                        <th>Quantity</th>
-                        <th>Reorder Point</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for option in reorder_items %}
-                    <tr class="{% if option.quantity <= option.reorder_point %}low-stock{% endif %}">
-                        <td>{{ option.item.group.name }}</td>
-                        <td>{{ option.item.name }}</td>
-                        <td>{{ option.name }}</td>
-                        <td>{{ option.quantity or 0 }}</td>
-                        <td>{{ option.reorder_point or 0 }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p>✅ No items need to be reordered right now.</p>
-            {% endif %}
+            <details>
+                <summary style="font-size: 1.4em; font-weight: bold; margin-bottom: 10px;">Items to Reorder</summary>
+                {% if reorder_items %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Group</th>
+                            <th>Item</th>
+                            <th>Option</th>
+                            <th>Quantity</th>
+                            <th>Reorder Point</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for option in reorder_items %}
+                        <tr class="{% if option.quantity <= option.reorder_point %}low-stock{% endif %}">
+                            <td>{{ option.item.group.name }}</td>
+                            <td>{{ option.item.name }}</td>
+                            <td>{{ option.name }}</td>
+                            <td>{{ option.quantity or 0 }}</td>
+                            <td>{{ option.reorder_point or 0 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="margin: 10px 0 20px 0;">✅ No items need to be reordered right now.</p>
+                {% endif %}
+            </details>
         </div>
 
         <!-- 🔧 Main Inventory Editor -->
