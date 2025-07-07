@@ -1064,6 +1064,16 @@ def edit_inventory():
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
 
+from flask import jsonify
+@app.route('/admin/show_columns')
+def show_columns():
+    result = {}
+    inspector = db.inspect(db.engine)
+    for table_name in inspector.get_table_names():
+        columns = [col['name'] for col in inspector.get_columns(table_name)]
+        result[table_name] = columns
+    return jsonify(result)
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
