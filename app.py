@@ -159,20 +159,81 @@ def add_to_order():
 
     cleaned_form = {}
 
+    # ✅ Load group names that allow halves
+    from models import MenuOption, MenuItem, MenuGroup
+
+    # Find Hyvee and Produce group IDs
+    allowed_groups = ["Hyvee", "Produce"]
+    allowed_group_ids = [
+        g.id for g in MenuGroup.query.filter(MenuGroup.name.in_(allowed_groups)).all()
+    ]
+
+    # Build a lookup for option → group
+    option_group_lookup = {}
+    for group in MenuGroup.query.all():
+        for item in group.items:
+            for opt in item.options:
+                option_group_lookup[f"meta_{item.id}_{opt.id}"] = group.id
+
     for key in form_data:
         if key.startswith("qty_"):
             qty_str = form_data[key].strip()
-            if qty_str.isdigit() and int(qty_str) > 0:
-                cleaned_form[key] = qty_str
+            if not qty_str:
+                continue
+
+            # Try to parse as float
+            try:
+                qty = float(qty_str)
+            except ValueError:
+                continue
+
+            # Disallow <= 0
+            if qty <= 0:
+                continue
+
+            # Look up group id
+            suffix = key[4:]
+            meta_key = f"meta_{suffix}"
+            group_id = option_group_lookup.get(meta_key)
+
+            if group_id in allowed_group_ids:
+                # Hyvee/Produce: allow .5 or 1, 1.5, etc.
+                if qty % 0.5 != 0:
+                    continue
+            else:
+                # Other groups: must be integer
+                if not qty.is_integer():
+                    continue
+                qty = int(qty)
+
+            cleaned_form[key] = str(qty)
 
         elif key.startswith("meta_"):
             suffix = key[5:]
             qty_key = f"qty_{suffix}"
             qty_str = form_data.get(qty_key, "").strip()
-            if qty_str.isdigit() and int(qty_str) > 0:
-                cleaned_form[key] = form_data[key]
+            if not qty_str:
+                continue
 
-    # Store cleaned form data in session for next step (review/submit)
+            try:
+                qty = float(qty_str)
+            except ValueError:
+                continue
+
+            if qty <= 0:
+                continue
+
+            group_id = option_group_lookup.get(key)
+
+            if group_id in allowed_group_ids:
+                if qty % 0.5 != 0:
+                    continue
+            else:
+                if not qty.is_integer():
+                    continue
+
+            cleaned_form[key] = form_data[key]
+
     session['last_order_form'] = cleaned_form
 
     if form_data.get("action") == "review":
@@ -194,19 +255,26 @@ def order_form_edit():
             suffix = key[5:]
             qty_key = f"qty_{suffix}"
             qty_str = form_data.get(qty_key, "").strip()
-            if qty_str.isdigit() and int(qty_str) > 0:
-                try:
-                    item_name, option_name, price = form_data[key].split("|||")
-                    selected_items.append({
-                        "name": item_name,
-                        "option": option_name,
-                        "price": float(price),
-                        "quantity": int(qty_str),
-                        "meta_key": key,
-                        "qty_key": qty_key
-                    })
-                except Exception:
+
+            try:
+                quantity = float(qty_str)
+                if quantity <= 0:
                     continue
+            except ValueError:
+                continue
+
+            try:
+                item_name, option_name, price = form_data[key].split("|||")
+                selected_items.append({
+                    "name": item_name,
+                    "option": option_name,
+                    "price": float(price),
+                    "quantity": quantity,   # use float, not int
+                    "meta_key": key,
+                    "qty_key": qty_key
+                })
+            except Exception:
+                continue
 
     return render_template("order_edit.html", selected_items=selected_items)
 
@@ -239,26 +307,32 @@ def review_order():
             qty_key = f"qty_{suffix}"
             qty_str = form_data.get(qty_key, "0").strip()
 
-            if qty_str.isdigit() and int(qty_str) > 0:
-                quantity = int(qty_str)
-                try:
-                    item_name, option_name, price = form_data[key].split("|||")
-                    price = float(price)
-                    subtotal = price * quantity
-                    total += subtotal
-                    items.append({
-                        "name": item_name,
-                        "option": option_name,
-                        "price": price,
-                        "quantity": quantity,
-                        "subtotal": subtotal
-                    })
-                except:
-                    continue
+            try:
+                quantity = float(qty_str)
+            except ValueError:
+                continue
+
+            if quantity <= 0:
+                continue
+
+            try:
+                item_name, option_name, price = form_data[key].split("|||")
+                price = float(price)
+                subtotal = round(price * quantity, 2)
+                total += subtotal
+                items.append({
+                    "name": item_name,
+                    "option": option_name,
+                    "price": price,
+                    "quantity": quantity,
+                    "subtotal": subtotal
+                })
+            except Exception:
+                continue
 
     return render_template("order_review.html",
                            items=items,
-                           total=total,
+                           total=round(total, 2),
                            user_budget=team_budget,
                            remaining_budget=round(team.remaining_budget - total, 2),
                            week_range=week_range_str,
@@ -277,20 +351,26 @@ def finalize_order():
             qty_key = f"qty_{suffix}"
             qty_str = form_data.get(qty_key, "0").strip()
 
-            if qty_str.isdigit() and int(qty_str) > 0:
-                try:
-                    item_name, option_name, price = form_data[key].split("|||")
-                    price = float(price)
-                    quantity = int(qty_str)
-                    total += price * quantity
-                    items.append({
-                        "name": item_name,
-                        "option": option_name,
-                        "price": price,
-                        "quantity": quantity
-                    })
-                except:
-                    continue
+            try:
+                quantity = float(qty_str)
+            except ValueError:
+                continue
+
+            if quantity <= 0:
+                continue
+
+            try:
+                item_name, option_name, price = form_data[key].split("|||")
+                price = float(price)
+                total += price * quantity
+                items.append({
+                    "name": item_name,
+                    "option": option_name,
+                    "price": price,
+                    "quantity": quantity
+                })
+            except:
+                continue
 
     # ✅ Save to DB if there are items
     if items:
@@ -1063,16 +1143,6 @@ def edit_inventory():
         grouped_menu[group.name] = items
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
-
-from flask import jsonify
-@app.route('/admin/show_columns')
-def show_columns():
-    result = {}
-    inspector = db.inspect(db.engine)
-    for table_name in inspector.get_table_names():
-        columns = [col['name'] for col in inspector.get_columns(table_name)]
-        result[table_name] = columns
-    return jsonify(result)
 
 # === Run the App ===
 if __name__ == '__main__':
