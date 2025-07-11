@@ -179,20 +179,19 @@
                     </thead>
                     <tbody>
                         {% for option in options %}
-                            {% set item_id = (item_name + '_' + option.name).replace(' ', '_') %}
-                            {% set qty_key = 'qty_' ~ item_id %}
                             <tr>
                                 <td>{{ option.name }}</td>
                                 <td>${{ '%.2f'|format(option.price) }}</td>
                                 <td>
                                     <input type="number"
-                                           name="{{ qty_key }}"
-                                           class="quantity-input"
-                                           min="0"
-                                           value="{{ form_data.get(qty_key, 0) }}">
+                                        name="qty_{{ option.item_id }}_{{ option.id }}"
+                                        class="quantity-input"
+                                        min="0"
+                                        step="0.5"
+                                        value="{{ form_data.get('qty_' ~ option.item_id ~ '_' ~ option.id, 0) }}">
                                     <input type="hidden"
-                                           name="meta_{{ item_id }}"
-                                           value="{{ item_name }}|||{{ option.name }}|||{{ option.price }}">
+                                        name="meta_{{ option.item_id }}_{{ option.id }}"
+                                        value="{{ item_name }}|||{{ option.name }}|||{{ option.price }}">
                                 </td>
                             </tr>
                         {% endfor %}
