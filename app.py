@@ -156,24 +156,25 @@ def submit_order():
 @login_required
 def add_to_order():
     form_data = request.form.to_dict()
+    print("DEBUG form_data:", form_data)
 
     cleaned_form = {}
 
-    # ✅ Load group names that allow halves
     from models import MenuOption, MenuItem, MenuGroup
 
-    # Find Hyvee and Produce group IDs
+    # ✅ Find Hyvee and Produce group IDs
     allowed_groups = ["Hyvee", "Produce"]
     allowed_group_ids = [
         g.id for g in MenuGroup.query.filter(MenuGroup.name.in_(allowed_groups)).all()
     ]
 
-    # Build a lookup for option → group
+    # ✅ Build a lookup for option → group
     option_group_lookup = {}
     for group in MenuGroup.query.all():
         for item in group.items:
             for opt in item.options:
                 option_group_lookup[f"meta_{item.id}_{opt.id}"] = group.id
+    print("DEBUG option_group_lookup:", option_group_lookup)
 
     for key in form_data:
         if key.startswith("qty_"):
@@ -181,28 +182,29 @@ def add_to_order():
             if not qty_str:
                 continue
 
-            # Try to parse as float
             try:
                 qty = float(qty_str)
             except ValueError:
                 continue
 
-            # Disallow <= 0
             if qty <= 0:
                 continue
 
-            # Look up group id
             suffix = key[4:]
             meta_key = f"meta_{suffix}"
             group_id = option_group_lookup.get(meta_key)
 
+            print(f"DEBUG: qty key={key}, meta_key={meta_key}, group_id={group_id}, qty={qty}")
+
             if group_id in allowed_group_ids:
-                # Hyvee/Produce: allow .5 or 1, 1.5, etc.
+                # Hyvee/Produce: allow .5, 1, 1.5, etc.
                 if qty % 0.5 != 0:
+                    print(f"DEBUG: qty {qty} not valid for allowed group {group_id}")
                     continue
             else:
                 # Other groups: must be integer
                 if not qty.is_integer():
+                    print(f"DEBUG: qty {qty} not integer for group {group_id}")
                     continue
                 qty = int(qty)
 
@@ -225,6 +227,8 @@ def add_to_order():
 
             group_id = option_group_lookup.get(key)
 
+            print(f"DEBUG: meta key={key}, group_id={group_id}, qty={qty}")
+
             if group_id in allowed_group_ids:
                 if qty % 0.5 != 0:
                     continue
@@ -235,6 +239,7 @@ def add_to_order():
             cleaned_form[key] = form_data[key]
 
     session['last_order_form'] = cleaned_form
+    print("DEBUG cleaned_form:", cleaned_form)
 
     if form_data.get("action") == "review":
         return redirect(url_for('review_order'))
