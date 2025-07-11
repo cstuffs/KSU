@@ -173,7 +173,8 @@ def add_to_order():
     for group in MenuGroup.query.all():
         for item in group.items:
             for opt in item.options:
-                option_group_lookup[f"meta_{item.id}_{opt.id}"] = group.id
+                key = f"meta_{item.name.replace(' ', '_')}_{opt.name.replace(' ', '_')}"
+                option_group_lookup[key] = group.id
     print("DEBUG option_group_lookup:", option_group_lookup)
 
     for key in form_data:
