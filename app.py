@@ -985,6 +985,7 @@ def edit_menu():
                     if not item:
                         item = MenuItem(name=item_name, group_id=group.id)
                         db.session.add(item)
+                        db.session.flush()
                     item.position = idx_item
 
                     # Load options and prices
