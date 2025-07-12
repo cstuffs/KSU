@@ -12,7 +12,6 @@ from models import MenuGroup, MenuItem, MenuOption
 from datetime import datetime, timedelta
 import json
 import os
-from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from apscheduler.schedulers.background import BackgroundScheduler
 from tasks import email_all_orders, email_reorder_alerts
@@ -403,6 +402,7 @@ def finalize_order():
 
         db.session.commit()
 
+        email_reorder_alerts()
     # ✅ Clear form session after saving
     session.pop('last_order_form', None)
 
@@ -1169,27 +1169,6 @@ def start_scheduler():
 
 with app.app_context():
     start_scheduler()
-
-def start_scheduler():
-    scheduler = BackgroundScheduler(timezone=CDT)
-    scheduler.add_job(
-        func=email_all_orders,
-        trigger='cron',
-        day_of_week='sun',
-        hour=23,
-        minute=59,
-        id='weekly_all_orders_email'
-    )
-    scheduler.add_job(
-        func=email_reorder_alerts,
-        trigger='cron',
-        day='*',
-        hour=7,
-        minute=0,
-        id='daily_reorder_alerts'
-    )
-    scheduler.start()
-    print("✅ Scheduler started.")
 
 #@app.route('/admin/clear_orders')
 #@login_required
