@@ -37,7 +37,7 @@ class OrderItem(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     item_name = db.Column(db.String, nullable=False)
     option_name = db.Column(db.String, nullable=True)
-    quantity = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Float, nullable=False)
     price = db.Column(db.Float, nullable=False, default=0.0)
 
 class MenuGroup(db.Model):
