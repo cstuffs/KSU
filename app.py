@@ -12,6 +12,10 @@ from models import MenuGroup, MenuItem, MenuOption
 from datetime import datetime, timedelta
 import json
 import os
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+CDT = ZoneInfo("America/Chicago")
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'
@@ -125,7 +129,7 @@ def submit_order():
     remaining_budget = team.remaining_budget
 
     # ✅ Week range string
-    today = datetime.now()
+    today = datetime.now(CDT)
     start_of_week = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
     end_of_week = start_of_week + timedelta(days=6)
     week_range_str = f"{start_of_week.strftime('%-m/%-d/%y')} - {end_of_week.strftime('%-m/%-d/%y')}"
@@ -274,7 +278,7 @@ def review_order():
     team_budget = team.budget
 
     # Week range string
-    today = datetime.now()
+    today = datetime.now(CDT)
     start_of_week = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
     end_of_week = start_of_week + timedelta(days=6)
     week_range_str = f"{start_of_week.strftime('%-m/%-d/%y')} - {end_of_week.strftime('%-m/%-d/%y')}"
@@ -413,7 +417,7 @@ def admin_dashboard():
     all_teams = [team.name for team in Team.query.order_by(Team.name).all()]
 
     # Week range string
-    today = datetime.now()
+    today = datetime.now(CDT)
     start_of_week = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
     end_of_week = start_of_week + timedelta(days=6)
     week_range_str = f"{start_of_week.strftime('%-m/%-d/%y')} - {end_of_week.strftime('%-m/%-d/%y')}"
@@ -441,7 +445,7 @@ def admin_produce_hyvee():
     valid_items = {item.name for group in groups for item in group.items}
 
     # Define current week range
-    today = datetime.now()
+    today = datetime.now(CDT)
     start_of_week = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
     end_of_week = start_of_week + timedelta(days=6)
 
@@ -471,7 +475,7 @@ def export_produce_hyvee_excel():
         return "Access Denied", 403
 
     # Define current week range
-    today = datetime.now()
+    today = datetime.now(CDT)
     start_of_week = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
     end_of_week = start_of_week + timedelta(days=6)
 
@@ -512,7 +516,7 @@ def admin_weekly_summary():
     if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
         return "Access Denied", 403
     
-    today = datetime.now()
+    today = datetime.now(CDT)
     start_of_week = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
     end_of_week = start_of_week + timedelta(days=6)
     week_range_str = f"{start_of_week.strftime('%-m/%-d/%y')} - {end_of_week.strftime('%-m/%-d/%y')}"
@@ -546,7 +550,7 @@ def export_weekly_summary_excel():
     if not (session.get('admin_as_football') or session.get('member_name') == "Scott Trausch"):
         return "Access Denied", 403
 
-    today = datetime.now()
+    today = datetime.now(CDT)
     start_of_week = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
     end_of_week = start_of_week + timedelta(days=6)
 
@@ -594,7 +598,7 @@ def view_team_orders(team_name):
     if not team:
         return f"Team '{team_name}' not found", 404
 
-    today = datetime.now()
+    today = datetime.now(CDT)
     start_of_week = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
     end_of_week = start_of_week + timedelta(days=6)
     week_range_str = f"{start_of_week.strftime('%-m/%-d/%y')} - {end_of_week.strftime('%-m/%-d/%y')}"
