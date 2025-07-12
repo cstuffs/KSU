@@ -212,7 +212,6 @@ def add_to_order():
                 if not qty.is_integer():
                     print(f"DEBUG: qty {qty} not integer for group {group_id}")
                     continue
-                qty = int(qty)
 
             cleaned_form[key] = str(qty)
 
