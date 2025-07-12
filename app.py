@@ -1165,6 +1165,13 @@ def seed_db():
 
     return "✅ Database seeded with sample data!"
 
+@app.route('/admin/create_ksu_team')
+def create_ksu_team():
+    team = Team(name='KSU Football', budget=1000.0, remaining_budget=1000.0)
+    db.session.add(team)
+    db.session.commit()
+    return "✅ KSU Football team created."
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
