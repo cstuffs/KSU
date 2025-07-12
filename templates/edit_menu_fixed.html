@@ -321,6 +321,23 @@ function updateGroupOrder() {
         groupOrderContainer.appendChild(input);
     });
 }
+document.querySelector("form").addEventListener("submit", () => {
+    document.querySelectorAll(".sortable-group").forEach(groupEl => {
+        const groupKey = groupEl.closest("details").getAttribute("data-original-group");
+        const container = document.getElementById("group-order-container");
+
+        // Remove any previous item_order inputs for this group
+        container.querySelectorAll(`input[name="item_order[${groupKey}][]"]`).forEach(i => i.remove());
+
+        groupEl.querySelectorAll(".draggable-item .item-name-input").forEach(input => {
+            const itemInput = document.createElement("input");
+            itemInput.type = "hidden";
+            itemInput.name = `item_order[${groupKey}][]`;
+            itemInput.value = input.value.trim();
+            container.appendChild(itemInput);
+        });
+    });
+});
 
 // Initialize once on page load
 updateGroupOrder();

@@ -979,14 +979,13 @@ def edit_menu():
                 item_names = form.getlist(f'group_names[{group_key}][item_names][]')
                 submitted_item_names = set(name.strip() for name in item_names if name.strip())
 
-                for item_name in submitted_item_names:
+                item_order = form.getlist(f"item_order[{group_key}][]")
+                for idx_item, item_name in enumerate(item_order, start=1):
                     item = MenuItem.query.filter_by(name=item_name, group_id=group.id).first()
                     if not item:
-                        last_item = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position.desc()).first()
-                        next_item_pos = (last_item.position + 1) if last_item else 1
-                        item = MenuItem(name=item_name, group_id=group.id, position=next_item_pos)
+                        item = MenuItem(name=item_name, group_id=group.id)
                         db.session.add(item)
-                        db.session.flush()
+                    item.position = idx_item
 
                     # Load options and prices
                     options = form.getlist(f'options[{item_name}][]')
@@ -1034,7 +1033,7 @@ def edit_menu():
 
             for group in all_existing_groups:
                 if group.name not in submitted_group_names:
-                    items = MenuItem.query.filter_by(group_id=group.id).all()
+                    items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position).all()
                     for item in items:
                         for opt in item.options:
                             db.session.delete(opt)
