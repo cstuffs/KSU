@@ -1141,11 +1141,29 @@ def debug_orders():
         for oi in orders
     ])
 
-@app.route('/reset_db')
-def reset_db():
-    db.drop_all()
-    db.create_all()
-    return "✅ Database has been reset (all data lost)"
+@app.route('/admin/seed')
+def seed_db():
+    # Example: Create a team
+    ksu_team = Team(name="KSU Football", budget=1000.0, remaining_budget=1000.0)
+    db.session.add(ksu_team)
+
+    # Example: Create an admin user
+    admin_user = User(name="Scott Trausch", team=ksu_team, is_enabled=True)
+    db.session.add(admin_user)
+
+    # Example: Create some menu groups, items, options
+    group1 = MenuGroup(name="Produce", position=1)
+    db.session.add(group1)
+
+    item1 = MenuItem(name="Bananas", group=group1, position=1)
+    db.session.add(item1)
+
+    opt1 = MenuOption(name="3 Bundles", item=item1, price=10.0, position=1, quantity=100)
+    db.session.add(opt1)
+
+    db.session.commit()
+
+    return "✅ Database seeded with sample data!"
 
 # === Run the App ===
 if __name__ == '__main__':
