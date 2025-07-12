@@ -1145,11 +1145,16 @@ def edit_inventory():
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
 
-@app.route('/admin/seed')
-def seed_db_route():
-    from seed_data import seed_db
-    seed_db()
-    return "✅ Database seeded"
+@app.route('/admin/clear_orders')
+@login_required
+def clear_orders():
+    if session.get('member_name') != "Scott Trausch":
+        return "Access Denied", 403
+
+    OrderItem.query.delete()
+    Order.query.delete()
+    db.session.commit()
+    return "✅ All orders cleared."
 
 # === Run the App ===
 if __name__ == '__main__':
