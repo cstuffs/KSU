@@ -1137,6 +1137,12 @@ def debug_orders():
         for oi in orders
     ])
 
+@app.route('/reset_db')
+def reset_db():
+    db.drop_all()
+    db.create_all()
+    return "✅ Database has been reset (all data lost)"
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
