@@ -166,13 +166,13 @@ def add_to_order():
 
     from models import MenuOption, MenuItem, MenuGroup
 
-    # ✅ Find Hyvee and Produce group IDs
+    # Find Hyvee and Produce group IDs
     allowed_groups = ["Hyvee", "Produce"]
     allowed_group_ids = [
         g.id for g in MenuGroup.query.filter(MenuGroup.name.in_(allowed_groups)).all()
     ]
 
-    # ✅ Build a lookup for option → group
+    # Build a lookup: meta_key → group_id
     option_group_lookup = {}
     for group in MenuGroup.query.all():
         for item in group.items:
@@ -200,48 +200,24 @@ def add_to_order():
             group_id = option_group_lookup.get(meta_key)
 
             print(f"DEBUG: qty key={key}, meta_key={meta_key}, group_id={group_id}, qty={qty}")
-            print(f"KEY={key}, META={meta_key}, QTY={qty}, GROUP_ID={group_id}, ALLOWED={group_id in allowed_group_ids}")
 
+            # Validate quantity based on group
             if group_id in allowed_group_ids:
-                # Hyvee/Produce: allow .5, 1, 1.5, etc.
+                # Hyvee/Produce: allow .5 increments
                 if qty % 0.5 != 0:
-                    print(f"DEBUG: qty {qty} not valid for allowed group {group_id}")
+                    print(f"Invalid: {qty} for allowed group {group_id}")
                     continue
             else:
-                # Other groups: must be integer
+                # Other groups: only integers
                 if not qty.is_integer():
-                    print(f"DEBUG: qty {qty} not integer for group {group_id}")
+                    print(f"Invalid: {qty} for non-allowed group {group_id}")
                     continue
+                qty = int(qty)
 
+            # Save validated qty and meta
             cleaned_form[key] = str(qty)
-
-        elif key.startswith("meta_"):
-            suffix = key[5:]
-            qty_key = f"qty_{suffix}"
-            qty_str = form_data.get(qty_key, "").strip()
-            if not qty_str:
-                continue
-
-            try:
-                qty = float(qty_str)
-            except ValueError:
-                continue
-
-            if qty <= 0:
-                continue
-
-            group_id = option_group_lookup.get(key)
-
-            print(f"DEBUG: meta key={key}, group_id={group_id}, qty={qty}")
-
-            if group_id in allowed_group_ids:
-                if qty % 0.5 != 0:
-                    continue
-            else:
-                if not qty.is_integer():
-                    continue
-
-            cleaned_form[key] = form_data[key]
+            if meta_key in form_data:
+                cleaned_form[meta_key] = form_data[meta_key]
 
     session['last_order_form'] = cleaned_form
     print("DEBUG cleaned_form:", cleaned_form)
