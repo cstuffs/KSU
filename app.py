@@ -196,6 +196,7 @@ def add_to_order():
             group_id = option_group_lookup.get(meta_key)
 
             print(f"DEBUG: qty key={key}, meta_key={meta_key}, group_id={group_id}, qty={qty}")
+            print(f"KEY={key}, META={meta_key}, QTY={qty}, GROUP_ID={group_id}, ALLOWED={group_id in allowed_group_ids}")
 
             if group_id in allowed_group_ids:
                 # Hyvee/Produce: allow .5, 1, 1.5, etc.
