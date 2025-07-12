@@ -363,7 +363,7 @@ def finalize_order():
 
     # ✅ Save to DB if there are items
     if items:
-        now = datetime.now()
+        now = datetime.now(CDT)
         new_order = Order(
             user_id=current_user.id,
             team_id=current_user.team_id,
@@ -678,7 +678,7 @@ def view_user_file(user_name):
     if not user:
         return f"No user found with name '{user_name}'", 404
 
-    current_week = datetime.now().isocalendar()[1]
+    current_week = datetime.now(CDT).isocalendar()[1]
     weekly_orders = []
     item_totals = {}
 
