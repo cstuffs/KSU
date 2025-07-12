@@ -129,7 +129,7 @@
                             <td>{{ order.date }}</td>
                             <td>{{ order.time }}</td>
                             <td>{{ order.item }}</td>
-                            <td>{{ order.quantity }}</td>
+                            <td>{{ "%.1f"|format(order.quantity) }}</td>
                             <td>{{ order.price }}</td>
                             <td>{{ order.subtotal }}</td>
                         </tr>
@@ -162,7 +162,7 @@
                 {% for item, data in total_orders.items() %}
                     <tr>
                         <td>{{ item }}</td>
-                        <td>{{ data.qty }}</td>
+                        <td>{{ "%.1f"|format(data.qty) }}</td>
                         <td>${{ "%.2f"|format(data.total_cost / data.qty if data.qty > 0 else 0) }}</td>
                         <td>
                             ${{ "%.2f"|format(data.total_cost) }}

@@ -112,7 +112,7 @@
                         <td>{{ entry.date }}</td>
                         <td>{{ entry.team }}</td>
                         <td>{{ entry.item }}</td>
-                        <td>{{ entry.quantity }}</td>
+                        <td>{{ "%.1f"|format(entry.quantity) }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
