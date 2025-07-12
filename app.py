@@ -1181,6 +1181,29 @@ with app.app_context():
     #db.session.commit()
     #return "✅ All orders cleared."
 
+@app.route('/admin/fix_positions')
+@login_required
+def fix_positions():
+    if session.get('member_name') != "Scott Trausch":
+        return "Access Denied", 403
+
+    # Fix MenuItem positions
+    groups = MenuGroup.query.order_by(MenuGroup.position).all()
+    for group in groups:
+        items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.id).all()
+        for idx, item in enumerate(items, start=1):
+            item.position = idx
+            db.session.add(item)
+
+            # Fix MenuOption positions for each item
+            options = MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.id).all()
+            for opt_idx, option in enumerate(options, start=1):
+                option.position = opt_idx
+                db.session.add(option)
+
+    db.session.commit()
+    return "✅ MenuItem and MenuOption positions have been fixed."
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
