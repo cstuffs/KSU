@@ -172,18 +172,18 @@ def add_to_order():
     from models import MenuOption, MenuItem, MenuGroup
 
     # Find Hyvee and Produce group IDs
-    allowed_groups = ["Hyvee", "Produce"]
-    allowed_group_ids = [
+    allowed_groups = {"Hyvee", "Produce"}
+    allowed_group_ids = {
         g.id for g in MenuGroup.query.filter(MenuGroup.name.in_(allowed_groups)).all()
-    ]
+    }
 
-    # Build a lookup: meta_key → group_id
+    # Build a lookup: meta_key → (group_id, item_name, option_name)
     option_group_lookup = {}
     for group in MenuGroup.query.all():
         for item in group.items:
             for opt in item.options:
                 key = f"meta_{item.name.replace(' ', '_')}_{opt.name.replace(' ', '_')}"
-                option_group_lookup[key] = group.id
+                option_group_lookup[key] = (group.id, item.name, opt.name)
     print("DEBUG option_group_lookup:", option_group_lookup)
 
     for key in form_data:
@@ -202,20 +202,19 @@ def add_to_order():
 
             suffix = key[4:]
             meta_key = f"meta_{suffix}"
-            group_id = option_group_lookup.get(meta_key)
+            group_id, item_name, option_name = option_group_lookup.get(meta_key, (None, None, None))
 
             print(f"DEBUG: qty key={key}, meta_key={meta_key}, group_id={group_id}, qty={qty}")
 
-            # Validate quantity based on group
             if group_id in allowed_group_ids:
-                # Hyvee/Produce: allow .5 increments
+                # ✅ Produce/Hyvee: allow .5 increments
                 if qty % 0.5 != 0:
-                    print(f"Invalid: {qty} for allowed group {group_id}")
+                    print(f"Invalid: {qty} for Produce/Hyvee (must be multiple of 0.5)")
                     continue
             else:
-                # Other groups: only integers
+                # ❌ Other groups: integers only
                 if not qty.is_integer():
-                    print(f"Invalid: {qty} for non-allowed group {group_id}")
+                    print(f"Invalid: {qty} for non-allowed group (must be integer)")
                     continue
                 qty = int(qty)
 
@@ -403,7 +402,7 @@ def finalize_order():
         db.session.commit()
 
         #email_reorder_alerts()
-        
+
     # ✅ Clear form session after saving
     session.pop('last_order_form', None)
 
