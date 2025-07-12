@@ -14,6 +14,8 @@ import json
 import os
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+from apscheduler.schedulers.background import BackgroundScheduler
+from tasks import email_all_orders
 
 CDT = ZoneInfo("America/Chicago")
 
@@ -1145,16 +1147,39 @@ def edit_inventory():
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
 
+def start_scheduler():
+    scheduler = BackgroundScheduler(timezone=CDT)
+    scheduler.add_job(
+        func=email_all_orders,
+        trigger='cron',
+        day_of_week='sun',
+        hour=23,
+        minute=59,
+        id='weekly_all_orders_email'
+    )
+    scheduler.start()
+    print("✅ Scheduler started.")
+
+with app.app_context():
+    start_scheduler()
+
+@app.route('/admin/test_email')
+@login_required
+def test_email():
+    from tasks import email_all_orders
+    email_all_orders()
+    return "✅ Test email sent (check logs for success/failure)."
+
 #@app.route('/admin/clear_orders')
 #@login_required
 #def clear_orders():
-    if session.get('member_name') != "Scott Trausch":
-        return "Access Denied", 403
+    #if session.get('member_name') != "Scott Trausch":
+        #return "Access Denied", 403
 
-    OrderItem.query.delete()
-    Order.query.delete()
-    db.session.commit()
-    return "✅ All orders cleared."
+    #OrderItem.query.delete()
+    #Order.query.delete()
+    #db.session.commit()
+    #return "✅ All orders cleared."
 
 # === Run the App ===
 if __name__ == '__main__':
