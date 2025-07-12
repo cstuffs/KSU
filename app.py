@@ -215,9 +215,8 @@ def add_to_order():
                 qty = int(qty)
 
             # Save validated qty and meta
-            cleaned_form[key] = str(qty)
-            if meta_key in form_data:
-                cleaned_form[meta_key] = form_data[meta_key]
+            cleaned_form[f"qty_{suffix}"] = str(qty)
+            cleaned_form[meta_key] = form_data.get(meta_key, "")
 
     session['last_order_form'] = cleaned_form
     print("DEBUG cleaned_form:", cleaned_form)
