@@ -184,13 +184,13 @@
                                 <td>${{ '%.2f'|format(option.price) }}</td>
                                 <td>
                                     <input type="number"
-                                        name="qty_{{ option.item_id }}_{{ option.id }}"
+                                        name="qty_{{ option.slug }}"
                                         class="quantity-input"
                                         min="0"
                                         step="0.5"
-                                        value="{{ form_data.get('qty_' ~ option.item_id ~ '_' ~ option.id, 0) }}">
+                                        value="{{ form_data.get('qty_' ~ option.slug, 0) }}">
                                     <input type="hidden"
-                                        name="meta_{{ option.item_id }}_{{ option.id }}"
+                                        name="meta_{{ option.slug }}"
                                         value="{{ item_name }}|||{{ option.name }}|||{{ option.price }}">
                                 </td>
                             </tr>

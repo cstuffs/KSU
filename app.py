@@ -139,7 +139,11 @@ def submit_order():
     for group in groups:
         group_data = OrderedDict()
         for item in group.items:
-            options = [{"name": opt.name, "price": opt.price} for opt in item.options]
+            options = [{
+                "name": opt.name,
+                "price": opt.price,
+                "slug": (item.name + '_' + opt.name).replace(' ', '_').replace('(', '').replace(')', '').replace('/', '').replace('&', '').replace(',', '')
+            } for opt in item.options]
             group_data[item.name] = options
         grouped_menu[group.name] = group_data
 
