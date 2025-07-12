@@ -1145,9 +1145,9 @@ def edit_inventory():
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
 
-@app.route('/admin/clear_orders')
-@login_required
-def clear_orders():
+#@app.route('/admin/clear_orders')
+#@login_required
+#def clear_orders():
     if session.get('member_name') != "Scott Trausch":
         return "Access Denied", 403
 
