@@ -391,6 +391,10 @@ def finalize_order():
         team = current_user.team
         team.remaining_budget -= total
 
+        print("==== FINALIZE ORDER: about to save ====")
+        for item in items:
+            print(f"{item['name']} - {item['option']} : {item['quantity']}")
+
         db.session.commit()
 
     # ✅ Clear form session after saving
