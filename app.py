@@ -1133,44 +1133,11 @@ def edit_inventory():
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
 
-@app.route('/debug/orders')
-def debug_orders():
-    orders = OrderItem.query.all()
-    return "<br>".join([
-        f"{oi.item_name} - {oi.option_name}: {oi.quantity}"
-        for oi in orders
-    ])
-
 @app.route('/admin/seed')
-def seed_db():
-    # Example: Create a team
-    ksu_team = Team(name="KSU Football", budget=1000.0, remaining_budget=1000.0)
-    db.session.add(ksu_team)
-
-    # Example: Create an admin user
-    admin_user = User(name="Scott Trausch", team=ksu_team, is_enabled=True)
-    db.session.add(admin_user)
-
-    # Example: Create some menu groups, items, options
-    group1 = MenuGroup(name="Produce", position=1)
-    db.session.add(group1)
-
-    item1 = MenuItem(name="Bananas", group=group1, position=1)
-    db.session.add(item1)
-
-    opt1 = MenuOption(name="3 Bundles", item=item1, price=10.0, position=1, quantity=100)
-    db.session.add(opt1)
-
-    db.session.commit()
-
-    return "✅ Database seeded with sample data!"
-
-@app.route('/admin/create_ksu_team')
-def create_ksu_team():
-    team = Team(name='KSU Football', budget=1000.0, remaining_budget=1000.0)
-    db.session.add(team)
-    db.session.commit()
-    return "✅ KSU Football team created."
+def seed_db_route():
+    from seed_data import seed_db
+    seed_db()
+    return "✅ Database seeded"
 
 # === Run the App ===
 if __name__ == '__main__':
