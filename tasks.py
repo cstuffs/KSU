@@ -1,7 +1,3 @@
-# tasks.py
-from app import app, db
-from models import Order, User, Team
-from app import get_week_number
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from io import BytesIO
@@ -12,6 +8,9 @@ from email.message import EmailMessage
 CDT = ZoneInfo("America/Chicago")
 
 def email_all_orders():
+    from app import app, db, get_week_number
+    from models import Order, User, Team
+
     with app.app_context():
         print("[Scheduled Job] Generating all orders Excel…")
 
