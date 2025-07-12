@@ -1155,6 +1155,14 @@ def edit_inventory():
 
     return render_template('edit_inventory.html', grouped_menu=grouped_menu)
 
+@app.route('/debug/orders')
+def debug_orders():
+    orders = OrderItem.query.all()
+    return "<br>".join([
+        f"{oi.item_name} - {oi.option_name}: {oi.quantity}"
+        for oi in orders
+    ])
+
 # === Run the App ===
 if __name__ == '__main__':
     app.run(debug=True)
