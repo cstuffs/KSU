@@ -171,20 +171,10 @@ def add_to_order():
 
     from models import MenuOption, MenuItem, MenuGroup
 
-    # Build lookup of meta_key → group_id
     allowed_groups = {"Hyvee", "Produce"}
     allowed_group_ids = {
         g.id for g in MenuGroup.query.filter(MenuGroup.name.in_(allowed_groups)).all()
     }
-
-    option_group_lookup = {}
-    for group in MenuGroup.query.all():
-        for item in group.items:
-            for opt in item.options:
-                meta_key = f"meta_{item.name.replace(' ', '_')}_{opt.name.replace(' ', '_')}"
-                option_group_lookup[f"qty_{meta_key[5:]}"] = group.id
-
-    print("DEBUG option_group_lookup:", option_group_lookup)
 
     for key in form_data:
         if key.startswith("qty_"):
@@ -200,29 +190,55 @@ def add_to_order():
             if qty <= 0:
                 continue
 
-            group_id = option_group_lookup.get(key)
+            suffix = key[4:]
+            meta_key = f"meta_{suffix}"
+            meta_value = form_data.get(meta_key)
 
-            print(f"DEBUG: qty key={key}, group_id={group_id}, qty={qty}")
+            if not meta_value:
+                print(f"⚠️ Missing meta for {suffix}")
+                continue
+
+            # meta_value is: "Item Name|||Option Name|||Price"
+            try:
+                item_name, option_name, price = meta_value.split("|||")
+            except ValueError:
+                print(f"⚠️ Invalid meta_value: {meta_value}")
+                continue
+
+            # Query DB to find the group of this option
+            option = (
+                MenuOption.query
+                .join(MenuItem)
+                .join(MenuGroup)
+                .filter(MenuItem.name == item_name, MenuOption.name == option_name)
+                .first()
+            )
+
+            if not option:
+                print(f"⚠️ Could not find option in DB: {item_name} > {option_name}")
+                continue
+
+            group_id = option.item.group.id
+            print(f"✅ {item_name} > {option_name} is in group_id={group_id}")
 
             if group_id in allowed_group_ids:
-                # ✅ Produce/Hyvee: allow .5 increments
+                # Produce/Hyvee: allow .5
                 if qty % 0.5 != 0:
-                    print(f"Invalid: {qty} for Produce/Hyvee (must be multiple of 0.5)")
+                    print(f"❌ Invalid quantity {qty} (must be multiple of 0.5) for Produce/Hyvee")
                     continue
             else:
-                # ❌ Other groups: integers only
+                # Others: integers only
                 if not qty.is_integer():
-                    print(f"Invalid: {qty} for non-allowed group (must be integer)")
+                    print(f"❌ Invalid quantity {qty} (must be integer) for non-Produce/Hyvee")
                     continue
                 qty = int(qty)
 
-            # Save validated qty and meta
+            # ✅ Save to cleaned form
             cleaned_form[key] = str(qty)
-            meta_key = f"meta_{key[4:]}"
-            cleaned_form[meta_key] = form_data.get(meta_key, "")
+            cleaned_form[meta_key] = meta_value
 
     session['last_order_form'] = cleaned_form
-    print("DEBUG cleaned_form:", cleaned_form)
+    print("✅ cleaned_form:", cleaned_form)
 
     if form_data.get("action") == "review":
         return redirect(url_for('review_order'))
