@@ -402,7 +402,8 @@ def finalize_order():
 
         db.session.commit()
 
-        email_reorder_alerts()
+        #email_reorder_alerts()
+        
     # ✅ Clear form session after saving
     session.pop('last_order_form', None)
 
