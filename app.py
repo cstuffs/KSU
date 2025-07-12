@@ -945,6 +945,7 @@ def edit_menu():
         form = request.form
         rename_map = {}
 
+        # Build mapping: old group key → new group name
         for key in form:
             if key.startswith("group_rename["):
                 original_name = key.split("group_rename[")[1].split("]")[0]
@@ -952,81 +953,88 @@ def edit_menu():
                 if new_name:
                     rename_map[original_name] = new_name
 
-        for group_index, (group_key, group_name) in enumerate(rename_map.items()):
-            group = MenuGroup.query.filter_by(name=group_name).first()
-            if not group:
-                group = MenuGroup(name=group_name)
-                db.session.add(group)
-                db.session.flush()
-
-            # Load item names submitted for this group
-            item_names = form.getlist(f'group_names[{group_key}][item_names][]')
-            submitted_item_names = set(name.strip() for name in item_names if name.strip())
-
-            for item_name in submitted_item_names:
-                item = MenuItem.query.filter_by(name=item_name, group_id=group.id).first()
-                if not item:
-                    item = MenuItem(name=item_name, group_id=group.id)
-                    db.session.add(item)
+        try:
+            for group_key, group_name in rename_map.items():
+                group = MenuGroup.query.filter_by(name=group_name).first()
+                if not group:
+                    last_group = MenuGroup.query.order_by(MenuGroup.position.desc()).first()
+                    next_position = (last_group.position + 1) if last_group else 1
+                    group = MenuGroup(name=group_name, position=next_position)
+                    db.session.add(group)
                     db.session.flush()
 
-                # Load options and prices from form
-                options = form.getlist(f'options[{item_name}][]')
-                prices = form.getlist(f'prices[{item_name}][]')
+                # Load item names for this group
+                item_names = form.getlist(f'group_names[{group_key}][item_names][]')
+                submitted_item_names = set(name.strip() for name in item_names if name.strip())
 
-                if not options or not prices or len(options) != len(prices):
-                    continue
+                for item_name in submitted_item_names:
+                    item = MenuItem.query.filter_by(name=item_name, group_id=group.id).first()
+                    if not item:
+                        last_item = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.position.desc()).first()
+                        next_item_pos = (last_item.position + 1) if last_item else 1
+                        item = MenuItem(name=item_name, group_id=group.id, position=next_item_pos)
+                        db.session.add(item)
+                        db.session.flush()
 
-                existing_options = {opt.name: opt for opt in item.options}
-                updated_option_names = set()
+                    # Load options and prices
+                    options = form.getlist(f'options[{item_name}][]')
+                    prices = form.getlist(f'prices[{item_name}][]')
 
-                for opt_name, price_str in zip(options, prices):
-                    opt_name = opt_name.strip()
-                    updated_option_names.add(opt_name)
-
-                    try:
-                        price = float(price_str)
-                    except ValueError:
+                    if not options or not prices or len(options) != len(prices):
                         continue
 
-                    option = existing_options.get(opt_name)
-                    if not option:
-                        option = MenuOption(name=opt_name, item_id=item.id)
-                        db.session.add(option)
+                    existing_options = {opt.name: opt for opt in item.options}
+                    updated_option_names = set()
 
-                    option.price = price  # Leave position, quantity, etc., untouched
+                    for opt_name, price_str in zip(options, prices):
+                        opt_name = opt_name.strip()
+                        updated_option_names.add(opt_name)
 
-                # Delete removed options (only if quantity is 0 or None)
-                for opt_name, opt in existing_options.items():
-                    if opt_name not in updated_option_names:
-                        if (opt.quantity or 0) == 0:
+                        try:
+                            price = float(price_str)
+                        except ValueError:
+                            continue
+
+                        option = existing_options.get(opt_name)
+                        if not option:
+                            option = MenuOption(name=opt_name, item_id=item.id)
+                            db.session.add(option)
+
+                        option.price = price
+
+                    # Delete removed options if quantity is 0
+                    for opt_name, opt in existing_options.items():
+                        if opt_name not in updated_option_names:
+                            if (opt.quantity or 0) == 0:
+                                db.session.delete(opt)
+
+                # Delete removed items from this group
+                existing_items = MenuItem.query.filter_by(group_id=group.id).all()
+                for existing_item in existing_items:
+                    if existing_item.name not in submitted_item_names:
+                        for opt in existing_item.options:
                             db.session.delete(opt)
+                        db.session.delete(existing_item)
 
-            # 🔥 Delete removed items from this group and their options
-            existing_items = MenuItem.query.filter_by(group_id=group.id).all()
-            for existing_item in existing_items:
-                if existing_item.name not in submitted_item_names:
-                    # Delete all associated options first
-                    for opt in existing_item.options:
-                        db.session.delete(opt)
-                    db.session.delete(existing_item)
-                    
-        # 🔥 Delete groups that were removed from the form
-        all_existing_groups = MenuGroup.query.all()
-        submitted_group_names = set(rename_map.values())
+            # Delete removed groups
+            all_existing_groups = MenuGroup.query.all()
+            submitted_group_names = set(rename_map.values())
 
-        for group in all_existing_groups:
-            if group.name not in submitted_group_names:
-                # Delete all items and options under this group
-                items = MenuItem.query.filter_by(group_id=group.id).all()
-                for item in items:
-                    for opt in item.options:
-                        db.session.delete(opt)
-                    db.session.delete(item)
-                db.session.delete(group)
+            for group in all_existing_groups:
+                if group.name not in submitted_group_names:
+                    items = MenuItem.query.filter_by(group_id=group.id).all()
+                    for item in items:
+                        for opt in item.options:
+                            db.session.delete(opt)
+                        db.session.delete(item)
+                    db.session.delete(group)
 
-        db.session.commit()
-        return redirect(url_for('edit_menu'))
+            db.session.commit()
+            return redirect(url_for('edit_menu'))
+
+        except Exception as e:
+            db.session.rollback()
+            raise
 
     # === GET: Load current grouped menu ===
     grouped_menu = OrderedDict()
