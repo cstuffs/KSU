@@ -85,6 +85,7 @@
 <div class="header-box">Edit Menu Items</div>
 <div class="content">
 <form method="POST">
+<div id="group-list">
     {% for group_name, items in grouped_menu.items() %}
     <details data-original-group="{{ group_name }}">
         <summary>
@@ -114,7 +115,6 @@
                                 <button type="button" onclick="removeRow(this)">✖</button>
                             {% endif %}
                         </td>
-
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -129,12 +129,15 @@
         </div>
     </details>
     {% endfor %}
+</div>
 
-    <button type="button" onclick="addNewGroup()">➕ Add New Group</button>
-    <div class="action-buttons">
-        <button type="submit" class="primary-btn">Save Changes</button>
-        <a href="{{ url_for('admin_dashboard') }}" class="back-button">← Back to Dashboard</a>
-    </div>
+<div id="group-order-container"></div>
+
+<button type="button" onclick="addNewGroup()">➕ Add New Group</button>
+<div class="action-buttons">
+    <button type="submit" class="primary-btn">Save Changes</button>
+    <a href="{{ url_for('admin_dashboard') }}" class="back-button">← Back to Dashboard</a>
+</div>
 </form>
 
 <script>
@@ -298,6 +301,29 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+const groupList = document.getElementById('group-list');
+const groupOrderContainer = document.getElementById('group-order-container');
+
+// Make the group list sortable
+Sortable.create(groupList, {
+    animation: 150,
+    onSort: updateGroupOrder
+});
+
+function updateGroupOrder() {
+    groupOrderContainer.innerHTML = '';
+    document.querySelectorAll('#group-list details').forEach(group => {
+        const groupKey = group.getAttribute('data-original-group');
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'group_order[]';
+        input.value = groupKey;
+        groupOrderContainer.appendChild(input);
+    });
+}
+
+// Initialize once on page load
+updateGroupOrder();
 
 </script>
 </div>

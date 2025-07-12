@@ -15,7 +15,7 @@ import os
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from apscheduler.schedulers.background import BackgroundScheduler
-from tasks import email_all_orders
+from tasks import email_all_orders, email_reorder_alerts
 
 CDT = ZoneInfo("America/Chicago")
 
@@ -960,14 +960,20 @@ def edit_menu():
                     rename_map[original_name] = new_name
 
         try:
-            for group_key, group_name in rename_map.items():
+            group_order = form.getlist("group_order[]")  # new, ordered list of group keys
+
+            for idx, group_key in enumerate(group_order, start=1):
+                group_name = rename_map.get(group_key)
+                if not group_name:
+                    continue
+
                 group = MenuGroup.query.filter_by(name=group_name).first()
                 if not group:
-                    last_group = MenuGroup.query.order_by(MenuGroup.position.desc()).first()
-                    next_position = (last_group.position + 1) if last_group else 1
-                    group = MenuGroup(name=group_name, position=next_position)
+                    group = MenuGroup(name=group_name, position=idx)
                     db.session.add(group)
                     db.session.flush()
+                else:
+                    group.position = idx
 
                 # Load item names for this group
                 item_names = form.getlist(f'group_names[{group_key}][item_names][]')
@@ -1163,12 +1169,26 @@ def start_scheduler():
 with app.app_context():
     start_scheduler()
 
-@app.route('/admin/test_email')
-@login_required
-def test_email():
-    from tasks import email_all_orders
-    email_all_orders()
-    return "✅ Test email sent (check logs for success/failure)."
+def start_scheduler():
+    scheduler = BackgroundScheduler(timezone=CDT)
+    scheduler.add_job(
+        func=email_all_orders,
+        trigger='cron',
+        day_of_week='sun',
+        hour=23,
+        minute=59,
+        id='weekly_all_orders_email'
+    )
+    scheduler.add_job(
+        func=email_reorder_alerts,
+        trigger='cron',
+        day='*',
+        hour=7,
+        minute=0,
+        id='daily_reorder_alerts'
+    )
+    scheduler.start()
+    print("✅ Scheduler started.")
 
 #@app.route('/admin/clear_orders')
 #@login_required

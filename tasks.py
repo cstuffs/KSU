@@ -63,3 +63,56 @@ def email_all_orders():
             print("[Scheduled Job] Email sent to Scott.")
         except Exception as e:
             print(f"[Scheduled Job] Failed to send email: {e}")
+
+def email_reorder_alerts():
+    from app import app, db
+    from models import MenuGroup, MenuItem, MenuOption
+
+    with app.app_context():
+        print("[Scheduled Job] Checking inventory for reorder alerts…")
+
+        # Groups to exclude
+        excluded_groups = ["Produce", "Hyvee"]
+
+        # Query all groups
+        excluded_group_ids = [
+            g.id for g in MenuGroup.query.filter(MenuGroup.name.in_(excluded_groups)).all()
+        ]
+
+        # Query options that are below reorder point & not in excluded groups
+        reorder_items = (
+            db.session.query(MenuOption, MenuItem, MenuGroup)
+            .join(MenuItem, MenuOption.item_id == MenuItem.id)
+            .join(MenuGroup, MenuItem.group_id == MenuGroup.id)
+            .filter(MenuOption.quantity <= MenuOption.reorder_point)
+            .filter(~MenuGroup.id.in_(excluded_group_ids))
+            .order_by(MenuGroup.name, MenuItem.name)
+            .all()
+        )
+
+        if not reorder_items:
+            print("[Scheduled Job] No items need reorder.")
+            return
+
+        # Build email body
+        body_lines = ["The following items are at or below their reorder point:\n"]
+        for option, item, group in reorder_items:
+            body_lines.append(
+                f"{group.name} > {item.name} > {option.name}: {option.quantity} (reorder point: {option.reorder_point})"
+            )
+        body_text = "\n".join(body_lines)
+
+        msg = EmailMessage()
+        msg['Subject'] = "Inventory Reorder Alert"
+        msg['From'] = "codystufflebean@gmail.com"
+        msg['To'] = "strausch@kstatesports.com"
+        msg.set_content(body_text)
+
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                smtp.login("codystufflebean@gmail.com", "dbmblqvczexojevy")
+                smtp.send_message(msg)
+            print("[Scheduled Job] Reorder alert email sent to Scott.")
+        except Exception as e:
+            print(f"[Scheduled Job] Failed to send reorder alert email: {e}")
+
