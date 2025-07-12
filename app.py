@@ -171,19 +171,19 @@ def add_to_order():
 
     from models import MenuOption, MenuItem, MenuGroup
 
-    # Find Hyvee and Produce group IDs
+    # Build lookup of meta_key → group_id
     allowed_groups = {"Hyvee", "Produce"}
     allowed_group_ids = {
         g.id for g in MenuGroup.query.filter(MenuGroup.name.in_(allowed_groups)).all()
     }
 
-    # Build a lookup: meta_key → (group_id, item_name, option_name)
     option_group_lookup = {}
     for group in MenuGroup.query.all():
         for item in group.items:
             for opt in item.options:
-                key = f"meta_{item.name.replace(' ', '_')}_{opt.name.replace(' ', '_')}"
-                option_group_lookup[key] = (group.id, item.name, opt.name)
+                meta_key = f"meta_{item.name.replace(' ', '_')}_{opt.name.replace(' ', '_')}"
+                option_group_lookup[f"qty_{meta_key[5:]}"] = group.id
+
     print("DEBUG option_group_lookup:", option_group_lookup)
 
     for key in form_data:
@@ -200,11 +200,9 @@ def add_to_order():
             if qty <= 0:
                 continue
 
-            suffix = key[4:]
-            meta_key = f"meta_{suffix}"
-            group_id, item_name, option_name = option_group_lookup.get(meta_key, (None, None, None))
+            group_id = option_group_lookup.get(key)
 
-            print(f"DEBUG: qty key={key}, meta_key={meta_key}, group_id={group_id}, qty={qty}")
+            print(f"DEBUG: qty key={key}, group_id={group_id}, qty={qty}")
 
             if group_id in allowed_group_ids:
                 # ✅ Produce/Hyvee: allow .5 increments
@@ -219,7 +217,8 @@ def add_to_order():
                 qty = int(qty)
 
             # Save validated qty and meta
-            cleaned_form[f"qty_{suffix}"] = str(qty)
+            cleaned_form[key] = str(qty)
+            meta_key = f"meta_{key[4:]}"
             cleaned_form[meta_key] = form_data.get(meta_key, "")
 
     session['last_order_form'] = cleaned_form
