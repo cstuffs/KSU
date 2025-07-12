@@ -986,7 +986,8 @@ def edit_menu():
                         item = MenuItem(name=item_name, group_id=group.id)
                         db.session.add(item)
                         db.session.flush()
-                    item.position = idx_item
+                    else:
+                        item.position = idx_item
 
                     # Load options and prices
                     options = form.getlist(f'options[{item_name}][]')
