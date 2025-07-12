@@ -983,7 +983,7 @@ def edit_menu():
                 for idx_item, item_name in enumerate(item_order, start=1):
                     item = MenuItem.query.filter_by(name=item_name, group_id=group.id).first()
                     if not item:
-                        item = MenuItem(name=item_name, group_id=group.id)
+                        item = MenuItem(name=item_name, group_id=group.id, position=idx_item)
                         db.session.add(item)
                         db.session.flush()
                     else:
