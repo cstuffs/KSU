@@ -165,8 +165,6 @@ def submit_order():
 @login_required
 def add_to_order():
     form_data = request.form.to_dict()
-    print("DEBUG form_data:", form_data)
-
     cleaned_form = {}
 
     from models import MenuOption, MenuItem, MenuGroup
@@ -878,7 +876,7 @@ def all_orders():
             quantity = item.quantity or 0
             price = item.price or 0.0
             subtotal = round(price * quantity, 2)
-            
+
             all_orders.append({
                 "date": order_date.strftime("%Y-%m-%d"),
                 "time": order_time.strftime("%I:%M %p"),
@@ -1191,39 +1189,16 @@ def start_scheduler():
 with app.app_context():
     start_scheduler()
 
-#@app.route('/admin/clear_orders')
-#@login_required
-#def clear_orders():
-    #if session.get('member_name') != "Scott Trausch":
-        #return "Access Denied", 403
-
-    #OrderItem.query.delete()
-    #Order.query.delete()
-    #db.session.commit()
-    #return "✅ All orders cleared."
-
-@app.route('/admin/fix_positions')
+@app.route('/admin/clear_orders')
 @login_required
-def fix_positions():
+def clear_orders():
     if session.get('member_name') != "Scott Trausch":
         return "Access Denied", 403
 
-    # Fix MenuItem positions
-    groups = MenuGroup.query.order_by(MenuGroup.position).all()
-    for group in groups:
-        items = MenuItem.query.filter_by(group_id=group.id).order_by(MenuItem.id).all()
-        for idx, item in enumerate(items, start=1):
-            item.position = idx
-            db.session.add(item)
-
-            # Fix MenuOption positions for each item
-            options = MenuOption.query.filter_by(item_id=item.id).order_by(MenuOption.id).all()
-            for opt_idx, option in enumerate(options, start=1):
-                option.position = opt_idx
-                db.session.add(option)
-
+    OrderItem.query.delete()
+    Order.query.delete()
     db.session.commit()
-    return "✅ MenuItem and MenuOption positions have been fixed."
+    return "✅ All orders cleared."
 
 # === Run the App ===
 if __name__ == '__main__':
