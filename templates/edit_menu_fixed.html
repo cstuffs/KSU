@@ -261,7 +261,7 @@ function addNewGroup() {
         </details>
     `;
     // Insert new group HTML
-    document.querySelector("group-list").insertAdjacentHTML("beforeend", groupHtml);
+    document.getElementById("group-list").insertAdjacentHTML("beforeend", groupHtml);
 
     // Get reference to the new group
     const newGroupEl = document.getElementById(`group_${index}`);
@@ -277,6 +277,7 @@ function addNewGroup() {
     const deleteBtn = newDetails.querySelector(".delete-group-btn");
     deleteBtn.onclick = function () {
         deleteGroup(this);
+        updateGroupOrder();
     };
 
     updateGroupOrder();
