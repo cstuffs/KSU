@@ -140,7 +140,7 @@ def submit_order():
 
     # Load menu from DB
     grouped_menu = OrderedDict()
-    groups = MenuGroup.query.order_by(MenuGroup.id).all()
+    groups = MenuGroup.query.order_by(MenuGroup.position).all()
     for group in groups:
         group_data = OrderedDict()
         for item in group.items:
@@ -964,13 +964,6 @@ def edit_menu():
 
     if request.method == 'POST':
         form = request.form
-
-        # DEBUG: print the entire form
-        print("--- FORM DATA ---")
-        for k, v in form.items():
-            print(f"{k}: {v}")
-        print("group_order[]:", form.getlist("group_order[]"))
-
         rename_map = {}
 
         # Build mapping: old group key → new group name
@@ -1064,9 +1057,6 @@ def edit_menu():
                         db.session.delete(item)
                     db.session.delete(group)
 
-            # DEBUG: about to commit
-            print("--- ABOUT TO COMMIT CHANGES ---")
-            
             db.session.commit()
             return redirect(url_for('edit_menu'))
 
