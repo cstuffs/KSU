@@ -978,7 +978,7 @@ def edit_menu():
             group_order = form.getlist("group_order[]")  # new, ordered list of group keys
 
             for idx, group_key in enumerate(group_order, start=1):
-                group_name = rename_map.get(group_key)
+                group_name = rename_map.get(group_key, group_key).strip()
                 if not group_name:
                     continue
 
