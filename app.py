@@ -875,6 +875,10 @@ def all_orders():
         week_num = get_week_number(order_date)
 
         for item in order.items:
+            quantity = item.quantity or 0
+            price = item.price or 0.0
+            subtotal = round(price * quantity, 2)
+            
             all_orders.append({
                 "date": order_date.strftime("%Y-%m-%d"),
                 "time": order_time.strftime("%I:%M %p"),
@@ -883,7 +887,9 @@ def all_orders():
                 "team": team_name,
                 "member": member_name,
                 "item": f"{item.item_name} - {item.option_name}".strip(" -"),
-                "quantity": item.quantity
+                "quantity": item.quantity,
+                "price": f"${price:.2f}",
+                "total": f"${subtotal:.2f}"
             })
 
     return render_template("all_orders.html", orders=all_orders)
