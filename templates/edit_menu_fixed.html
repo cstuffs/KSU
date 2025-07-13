@@ -261,7 +261,7 @@ function addNewGroup() {
         </details>
     `;
     // Insert new group HTML
-    document.querySelector("form").insertAdjacentHTML("beforeend", groupHtml);
+    document.querySelector("group-list").insertAdjacentHTML("beforeend", groupHtml);
 
     // Get reference to the new group
     const newGroupEl = document.getElementById(`group_${index}`);
